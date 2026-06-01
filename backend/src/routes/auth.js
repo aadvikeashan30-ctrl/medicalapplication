@@ -77,6 +77,12 @@ router.post(
     if (!checkValidation(req, res)) return;
     const { email, password } = req.body;
 
+    // Check if DB is actually reachable before querying
+    const mongoose = require('mongoose');
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({ message: 'Database temporarily unavailable. Please try again shortly.' });
+    }
+
     const user = await User.findOne({ email });
     if (!user) return res.status(401).json({ message: 'Invalid credentials' });
 

@@ -36,6 +36,14 @@ function errorHandler(err, req, res, next) {
     message = 'Invalid or expired token';
   }
 
+  // MongoDB connectivity errors — return 503 instead of generic 500
+  if (err.name === 'MongoServerSelectionError' || err.name === 'MongoNetworkError' ||
+      err.name === 'MongooseServerSelectionError' || err.name === 'MongoNetworkTimeoutError' ||
+      (err.message && err.message.includes('connect ECONNREFUSED'))) {
+    status = 503;
+    message = 'Database temporarily unavailable. Please try again shortly.';
+  }
+
   if (status >= 500) {
     logger.error(err.stack || err.message);
   } else {
