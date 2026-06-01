@@ -1,8 +1,12 @@
 import axios from 'axios';
 
+// Use environment variable or default to /api (Vite proxy handles this in dev)
+const baseURL = import.meta.env.VITE_API_URL || '/api';
+
 const api = axios.create({
-  baseURL: '/api',
-  headers: { 'Content-Type': 'application/json' }
+  baseURL,
+  headers: { 'Content-Type': 'application/json' },
+  timeout: 10000 // 10 second timeout to avoid hanging requests
 });
 
 // Add token to requests
@@ -14,7 +18,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Handle 401 errors
+// Handle errors — 401 redirect + fallback for server unreachable
 api.interceptors.response.use(
   (response) => response,
   (error) => {

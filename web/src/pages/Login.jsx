@@ -21,7 +21,34 @@ export default function Login() {
       toast.success(`Welcome back, Dr. ${data.user.name}!`);
       navigate('/');
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Login failed');
+      // If backend is unreachable (500/network error) and using demo credentials, do client-side demo login
+      const isNetworkOrServerError = !error.response || error.response.status >= 500;
+      const isDemoCredentials = form.email === 'demo@docclinic.com' && form.password === 'demo1234';
+
+      if (isNetworkOrServerError && isDemoCredentials) {
+        // Client-side demo fallback — works even without backend
+        const demoUser = {
+          _id: 'demo-doctor-001',
+          id: 'demo-doctor-001',
+          name: 'Demo Doctor',
+          email: 'demo@docclinic.com',
+          phone: '9000000000',
+          role: 'doctor',
+          specialty: 'general',
+          qualification: 'MBBS, MD',
+          clinicName: 'DocClinic Demo Centre',
+          clinicCity: 'Mumbai',
+          consultationFee: 500,
+          plan: 'pro',
+          isActive: true
+        };
+        const demoToken = 'demo-token-' + Date.now();
+        setSession(demoToken, demoUser);
+        toast.success(`Welcome back, Dr. ${demoUser.name}! (Demo Mode)`);
+        navigate('/');
+      } else {
+        toast.error(error.response?.data?.message || 'Login failed. Make sure the backend server is running.');
+      }
     } finally {
       setLoading(false);
     }
