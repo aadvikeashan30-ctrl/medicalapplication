@@ -1,0 +1,397 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gray-50 dark:bg-dark-900 font-sans text-gray-900 dark:text-gray-100 antialiased;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  * {
+    @apply transition-colors duration-200;
+  }
+}
+
+@layer components {
+  /* ======= Buttons ======= */
+  .btn-primary {
+    @apply relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-2.5 px-6 rounded-xl shadow-lg shadow-blue-500/20 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/30 hover:-translate-y-0.5 active:translate-y-0 active:shadow-md;
+  }
+
+  .btn-primary::after {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-200%] transition-transform;
+  }
+  .btn-primary:hover::after {
+    @apply translate-x-[200%] duration-700;
+  }
+
+  .btn-secondary {
+    @apply bg-white dark:bg-dark-800 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 text-gray-700 dark:text-gray-200 font-semibold py-2.5 px-6 rounded-xl transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0;
+  }
+
+  .btn-success {
+    @apply bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-semibold py-2.5 px-6 rounded-xl shadow-lg shadow-emerald-500/20 transition-all duration-300 hover:shadow-xl;
+  }
+
+  .btn-danger {
+    @apply bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white font-semibold py-2.5 px-6 rounded-xl shadow-lg shadow-red-500/20 transition-all duration-300;
+  }
+
+  /* ======= Cards ======= */
+  .card {
+    @apply bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm rounded-2xl shadow-glass border border-gray-100/80 dark:border-gray-700/50 p-6 hover:shadow-glass-lg transition-all duration-300;
+  }
+
+  .glass-card {
+    @apply bg-white/60 dark:bg-dark-800/60 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-gray-700/30 shadow-glass p-6;
+  }
+
+  /* ======= Inputs ======= */
+  .input-field {
+    @apply w-full px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500/40 focus:border-blue-400 dark:focus:border-blue-500 outline-none transition-all duration-200 bg-gray-50/50 dark:bg-dark-800 focus:bg-white dark:focus:bg-dark-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500;
+  }
+
+  /* ======= Sidebar ======= */
+  .sidebar-link {
+    @apply flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-blue-50/80 dark:hover:bg-blue-900/20 hover:text-blue-700 dark:hover:text-blue-400 transition-all duration-200 font-medium;
+  }
+
+  .sidebar-link-active {
+    @apply flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/25 font-medium;
+  }
+
+  /* ======= Glassmorphism Sidebar ======= */
+  .sidebar-glass {
+    @apply bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border-r border-gray-200/50 dark:border-gray-700/50 shadow-xl;
+  }
+
+  /* ======= Header Glass ======= */
+  .header-glass {
+    @apply bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-700/50 shadow-sm;
+  }
+
+  /* ======= Stat Cards ======= */
+  .stat-card {
+    @apply bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-100/80 dark:border-gray-700/50 shadow-glass hover:shadow-glass-lg transition-all duration-300 hover:-translate-y-1;
+  }
+
+  /* ======= 3D Card ======= */
+  .three-d-card {
+    @apply relative rounded-2xl overflow-hidden;
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
+
+  /* ======= Quick Action Button ======= */
+  .quick-action-btn {
+    @apply flex flex-col items-center gap-2.5 p-4 rounded-2xl bg-gray-50/80 dark:bg-gray-800/50 hover:bg-white dark:hover:bg-gray-700/50 border border-gray-100 dark:border-gray-700/50 transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+  }
+
+  /* ======= Glass Pill (Hero stats) ======= */
+  .glass-pill {
+    @apply flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 text-sm font-medium text-white;
+  }
+
+  /* ======= Badges ======= */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold;
+  }
+
+  .badge-blue { @apply bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400; }
+  .badge-green { @apply bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400; }
+  .badge-red { @apply bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400; }
+  .badge-purple { @apply bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400; }
+  .badge-amber { @apply bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400; }
+}
+
+/* ======= Custom Scrollbar ======= */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #374151;
+}
+.custom-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+/* ======= Core Animations ======= */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-slide-up {
+  animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.animate-slide-in {
+  animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+.animate-scale-in {
+  animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ======= 3D Floating Orb Animation ======= */
+@keyframes floatOrb {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(10px, -15px) scale(1.05); }
+  50% { transform: translate(-5px, -25px) scale(0.95); }
+  75% { transform: translate(-15px, -10px) scale(1.03); }
+}
+.floating-orb {
+  animation: floatOrb 8s ease-in-out infinite;
+}
+
+/* ======= 3D DNA Helix ======= */
+.dna-helix-container {
+  width: 80px;
+  height: 200px;
+  perspective: 500px;
+}
+
+.dna-helix {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transform-style: preserve-3d;
+  animation: dnaRotate 6s linear infinite;
+}
+
+@keyframes dnaRotate {
+  from { transform: rotateY(0deg); }
+  to { transform: rotateY(360deg); }
+}
+
+.dna-rung {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  animation: dnaRung 2s ease-in-out infinite alternate;
+}
+
+@keyframes dnaRung {
+  0% { transform: rotateX(0deg) translateZ(0); }
+  100% { transform: rotateX(180deg) translateZ(10px); }
+}
+
+.dna-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.dna-dot-left {
+  background: linear-gradient(135deg, #60a5fa, #818cf8);
+  box-shadow: 0 0 8px rgba(96, 165, 250, 0.5);
+}
+
+.dna-dot-right {
+  background: linear-gradient(135deg, #c084fc, #f472b6);
+  box-shadow: 0 0 8px rgba(192, 132, 252, 0.5);
+}
+
+.dna-connector {
+  width: 30px;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(96, 165, 250, 0.5), rgba(192, 132, 252, 0.5));
+  border-radius: 2px;
+}
+
+/* ======= 3D Transform Utilities ======= */
+.transform-3d {
+  transform-style: preserve-3d;
+}
+
+.rotate-3d-hover {
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.rotate-3d-hover:hover {
+  transform: perspective(500px) rotateY(15deg) rotateX(-5deg) scale(1.05);
+}
+
+/* ======= Perspective Container ======= */
+.perspective-container {
+  perspective: 1200px;
+  transform-style: preserve-3d;
+}
+
+/* ======= 3D Card Lift on hover ======= */
+.card-3d-hover {
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-style: preserve-3d;
+}
+.card-3d-hover:hover {
+  transform: perspective(1000px) rotateX(-2deg) rotateY(2deg) translateY(-4px) scale(1.01);
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.1),
+    0 12px 24px -8px rgba(59, 130, 246, 0.08);
+}
+
+/* ======= Shimmer Loading ======= */
+.shimmer {
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ======= Gradient Text ======= */
+.gradient-text {
+  @apply bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent;
+}
+
+/* ======= Glass Effect ======= */
+.glass {
+  @apply bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl border border-white/20 dark:border-gray-700/30;
+}
+
+/* ======= Dot Pattern Background ======= */
+.dot-pattern {
+  background-image: radial-gradient(circle, #e5e7eb 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+.dark .dot-pattern {
+  background-image: radial-gradient(circle, #374151 1px, transparent 1px);
+}
+
+/* ======= Pulse Ring ======= */
+.pulse-ring {
+  @apply relative;
+}
+.pulse-ring::before {
+  content: '';
+  @apply absolute inset-0 rounded-full animate-ping opacity-20 bg-current;
+}
+
+/* ======= Mesh Gradient Background ======= */
+.mesh-gradient {
+  background: 
+    radial-gradient(at 40% 20%, hsla(228, 68%, 64%, 0.15) 0px, transparent 50%),
+    radial-gradient(at 80% 0%, hsla(189, 100%, 56%, 0.1) 0px, transparent 50%),
+    radial-gradient(at 0% 50%, hsla(355, 85%, 63%, 0.08) 0px, transparent 50%),
+    radial-gradient(at 80% 50%, hsla(340, 65%, 55%, 0.08) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, hsla(22, 100%, 60%, 0.08) 0px, transparent 50%),
+    radial-gradient(at 80% 100%, hsla(242, 100%, 70%, 0.1) 0px, transparent 50%);
+}
+
+/* ======= Glassmorphism Card Variant ======= */
+.glass-morphism {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 
+    0 4px 30px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+.dark .glass-morphism {
+  background: rgba(17, 24, 39, 0.6);
+  border-color: rgba(75, 85, 99, 0.3);
+}
+
+/* ======= Glow Effect ======= */
+.glow-blue {
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3), 0 0 60px rgba(59, 130, 246, 0.1);
+}
+.glow-purple {
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.3), 0 0 60px rgba(139, 92, 246, 0.1);
+}
+.glow-emerald {
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.3), 0 0 60px rgba(16, 185, 129, 0.1);
+}
+
+/* ======= Animated Border Gradient ======= */
+.border-gradient {
+  position: relative;
+  border-radius: 1rem;
+}
+.border-gradient::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899, #3b82f6);
+  background-size: 300% 300%;
+  animation: borderGlow 4s ease infinite;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.border-gradient:hover::before {
+  opacity: 1;
+}
+
+@keyframes borderGlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ======= Focus Ring ======= */
+*:focus-visible {
+  @apply outline-none ring-2 ring-blue-500/40 ring-offset-2 ring-offset-white dark:ring-offset-gray-900 rounded-lg;
+}
+
+/* ======= Selection Color ======= */
+::selection {
+  @apply bg-blue-200/70 dark:bg-blue-800/50;
+}
+
+/* ======= Page Transition ======= */
+@keyframes pageEnter {
+  from { 
+    opacity: 0; 
+    transform: perspective(1200px) rotateX(-2deg) translateY(20px);
+  }
+  to { 
+    opacity: 1; 
+    transform: perspective(1200px) rotateX(0deg) translateY(0);
+  }
+}
+.page-enter {
+  animation: pageEnter 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ======= Gradient Hover Effect for Nav Items ======= */
+.nav-glow:hover {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(139, 92, 246, 0.05));
+}
+
+/* ======= Number Animation (Tabular) ======= */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
