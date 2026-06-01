@@ -1,190 +1,185 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FiCheck, FiX, FiStar, FiZap, FiShield, FiArrowRight, FiPhone } from 'react-icons/fi';
+import { FiActivity } from 'react-icons/fi';
 
 const plans = [
   {
-    id: 'basic',
+    id: 'starter',
     name: 'Starter',
-    price: { monthly: 499, quarterly: 1299, half: 2499, yearly: 4499 },
-    desc: 'Solo practitioners starting their digital journey',
+    price: { monthly: 499, quarterly: 1299, yearly: 4499 },
+    desc: 'Solo practitioners starting digital',
+    gradient: 'from-indigo-500 to-purple-600',
     features: [
-      { text: 'Unlimited Patients', included: true },
-      { text: 'Appointment Scheduling', included: true },
-      { text: 'Digital Prescriptions', included: true },
-      { text: 'Billing & GST Invoices', included: true },
-      { text: 'Patient Portal Link', included: true },
-      { text: 'SMS Reminders (50/mo)', included: true },
-      { text: 'WhatsApp Integration', included: false },
-      { text: 'AI Clinical Assistant', included: false },
-      { text: 'Reports & Analytics', included: false },
-      { text: 'Multi-staff Access', included: false },
-    ]
+      'Unlimited Patients', 'Appointment Scheduling', 'Digital Prescriptions',
+      'Billing & GST Invoices', 'Patient Portal Link', 'SMS Reminders (50/mo)',
+    ],
+    excluded: ['WhatsApp Integration', 'AI Assistant', 'Reports', 'Multi-staff']
   },
   {
     id: 'pro',
     name: 'Professional',
-    price: { monthly: 1499, quarterly: 3999, half: 7499, yearly: 13499 },
-    desc: 'Growing clinics that want to maximize efficiency',
+    price: { monthly: 1499, quarterly: 3999, yearly: 13499 },
+    desc: 'Growing clinics maximizing efficiency',
     popular: true,
+    gradient: 'from-cyan-500 to-blue-600',
     features: [
-      { text: 'Everything in Starter', included: true },
-      { text: 'Unlimited WhatsApp Reminders', included: true },
-      { text: 'AI Clinical Assistant', included: true },
-      { text: 'AI Diagnosis Suggestions', included: true },
-      { text: 'Expense Tracking + P&L', included: true },
-      { text: 'Advanced Reports', included: true },
-      { text: 'Lab Test Management', included: true },
-      { text: 'Medicine Library (auto-fill)', included: true },
-      { text: 'Follow-up Tracker', included: true },
-      { text: 'Custom Print Templates', included: true },
-    ]
+      'Everything in Starter', 'Unlimited WhatsApp Reminders', 'AI Clinical Assistant',
+      'AI Diagnosis Suggestions', 'Expense Tracking + P&L', 'Advanced Reports',
+      'Lab Test Management', 'Medicine Library', 'Follow-up Tracker', 'Custom Print Templates',
+    ],
+    excluded: []
   },
   {
-    id: 'enterprise',
+    id: 'hospital',
     name: 'Hospital',
-    price: { monthly: 4999, quarterly: 13499, half: 24999, yearly: 44999 },
-    desc: 'Multi-doctor hospitals & clinic chains',
+    price: { monthly: 4999, quarterly: 13499, yearly: 44999 },
+    desc: 'Multi-doctor hospitals & chains',
+    gradient: 'from-emerald-500 to-teal-600',
     features: [
-      { text: 'Everything in Professional', included: true },
-      { text: 'Unlimited Staff Accounts', included: true },
-      { text: 'Multi-branch Dashboard', included: true },
-      { text: 'White-label Branding', included: true },
-      { text: 'Teleconsultation (Video)', included: true },
-      { text: 'Insurance/TPA Module', included: true },
-      { text: 'API Access', included: true },
-      { text: 'Custom Integrations', included: true },
-      { text: 'Dedicated Account Manager', included: true },
-      { text: '99.9% Uptime SLA', included: true },
-    ]
+      'Everything in Professional', 'Unlimited Staff Accounts', 'Multi-branch Dashboard',
+      'White-label Branding', 'Teleconsultation (Video)', 'Insurance/TPA Module',
+      'API Access', 'Custom Integrations', 'Dedicated Account Manager', '99.9% Uptime SLA',
+    ],
+    excluded: []
   }
 ];
 
 const billingOptions = [
-  { value: 'monthly', label: 'Monthly', discount: '' },
-  { value: 'quarterly', label: 'Quarterly', discount: '13% off' },
-  { value: 'yearly', label: 'Annual', discount: '25% off' }
-];
-
-const testimonials = [
-  { name: 'Dr. Rajesh Patel', city: 'Mumbai', text: 'Saved 2 hours daily on paperwork. My staff loves it.', plan: 'Pro' },
-  { name: 'Dr. Anita Sharma', city: 'Delhi', text: 'Patient no-shows reduced by 40% with WhatsApp reminders.', plan: 'Pro' },
-  { name: 'Apollo Clinic', city: 'Bangalore', text: 'Managing 5 branches from one dashboard changed everything.', plan: 'Hospital' },
+  { value: 'monthly', label: 'Monthly' },
+  { value: 'quarterly', label: 'Quarterly', save: '13%' },
+  { value: 'yearly', label: 'Annual', save: '25%' }
 ];
 
 export default function Pricing() {
   const [billing, setBilling] = useState('monthly');
 
   return (
-    <div className="min-h-screen bg-white dark:bg-surface-950">
+    <div className="min-h-screen bg-gray-950 text-white">
       {/* Header */}
-      <header className="bg-white/90 dark:bg-surface-900/90 backdrop-blur-xl border-b border-gray-100 dark:border-gray-800 sticky top-0 z-30">
+      <header className="header-glass sticky top-0 z-30">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link to="/home" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl flex items-center justify-center">
-              <span className="text-white font-bold text-sm">DC</span>
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #6366f1, #a855f7)' }}>
+              <FiActivity className="text-white text-sm" />
             </div>
-            <span className="text-lg font-bold text-gray-900 dark:text-white">DocClinic Pro</span>
+            <span className="text-lg font-bold text-white">DocClinic Pro</span>
           </Link>
           <div className="flex items-center gap-3">
-            <Link to="/home" className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary-600 font-medium hidden sm:block">Home</Link>
+            <Link to="/home" className="text-sm text-gray-400 hover:text-white font-medium transition-colors hidden sm:block">Home</Link>
             <Link to="/login" className="btn-primary text-sm !py-2 !px-4">Sign In</Link>
           </div>
         </div>
       </header>
 
-      <div className="max-w-6xl mx-auto px-6 py-16">
+      <div className="max-w-6xl mx-auto px-6 py-16 relative">
+        {/* Background orbs */}
+        <div className="orb orb-indigo w-80 h-80 -top-40 left-1/4 animate-orb" />
+        <div className="orb orb-purple w-60 h-60 top-1/3 -right-20 animate-orb" style={{ animationDelay: '-5s' }} />
+        <div className="orb orb-cyan w-48 h-48 bottom-0 left-10 animate-orb" style={{ animationDelay: '-9s' }} />
+
         {/* Hero */}
-        <div className="text-center mb-14">
-          <div className="inline-flex items-center gap-2 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 rounded-full px-3.5 py-1.5 text-xs font-semibold mb-4 border border-primary-100 dark:border-primary-800">
+        <div className="text-center mb-14 relative z-10">
+          <div className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold mb-5 badge-primary">
             <FiZap className="text-xs" /> 30-Day Free Trial · No Card Required
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-3">
-            Pricing that scales with your practice
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">
+            Pricing that <span className="gradient-text">scales</span> with you
           </h1>
-          <p className="text-base text-gray-500 dark:text-gray-400 max-w-xl mx-auto">
-            Start free, upgrade when you're ready. Plans designed specifically for Indian clinics & hospitals.
+          <p className="text-lg text-gray-400 max-w-xl mx-auto">
+            Start free, upgrade when ready. Plans designed for Indian clinics & hospitals.
           </p>
         </div>
 
         {/* Billing Toggle */}
-        <div className="flex justify-center mb-12">
-          <div className="inline-flex bg-gray-100 dark:bg-surface-800 rounded-xl p-1 gap-0.5">
+        <div className="flex justify-center mb-12 relative z-10">
+          <div className="inline-flex rounded-xl p-1 gap-0.5" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
             {billingOptions.map(opt => (
               <button
                 key={opt.value}
                 onClick={() => setBilling(opt.value)}
-                className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 ${
                   billing === opt.value
-                    ? 'bg-white dark:bg-surface-700 text-gray-900 dark:text-white shadow-sm'
-                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'
+                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/25'
+                    : 'text-gray-400 hover:text-white'
                 }`}
               >
                 {opt.label}
-                {opt.discount && <span className="ml-1.5 text-accent-600 dark:text-accent-400 text-[11px] font-bold">{opt.discount}</span>}
+                {opt.save && <span className="ml-1.5 text-emerald-400 text-[11px] font-bold">{opt.save}</span>}
               </button>
             ))}
           </div>
         </div>
 
         {/* Plan Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-6 mb-20">
-          {plans.map(plan => (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-6 mb-20 relative z-10">
+          {plans.map((plan, idx) => (
             <div
               key={plan.id}
-              className={`relative rounded-2xl border p-7 transition-all duration-300 hover:shadow-lg ${
+              className={`relative rounded-2xl p-7 transition-all duration-500 hover:-translate-y-2 animate-fade-up ${
                 plan.popular
-                  ? 'border-primary-300 dark:border-primary-700 shadow-card bg-primary-50/30 dark:bg-primary-900/10'
-                  : 'border-gray-200 dark:border-gray-800 hover:border-primary-200 dark:hover:border-primary-800'
+                  ? 'border-indigo-500/40 shadow-lg shadow-indigo-500/10'
+                  : 'border-white/5 hover:border-indigo-500/20'
               }`}
+              style={{
+                background: plan.popular ? 'rgba(99, 102, 241, 0.04)' : 'rgba(255,255,255,0.02)',
+                border: `1px solid ${plan.popular ? 'rgba(99, 102, 241, 0.3)' : 'rgba(255,255,255,0.06)'}`,
+                backdropFilter: 'blur(12px)',
+                animationDelay: `${idx * 100}ms`
+              }}
             >
               {plan.popular && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <span className="bg-primary-600 text-white text-[11px] font-bold px-3 py-1 rounded-full flex items-center gap-1">
-                    <FiStar className="text-amber-300 text-[10px]" /> RECOMMENDED
+                  <span className="flex items-center gap-1 text-[11px] font-bold px-3 py-1 rounded-full text-white" style={{ background: 'linear-gradient(135deg, #6366f1, #a855f7)', boxShadow: '0 0 20px rgba(99,102,241,0.3)' }}>
+                    <FiStar className="text-amber-300 text-[10px]" /> MOST POPULAR
                   </span>
                 </div>
               )}
 
+              {/* Plan header */}
               <div className="mb-5">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white">{plan.name}</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{plan.desc}</p>
+                <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${plan.gradient} flex items-center justify-center mb-3`}>
+                  <FiZap className="text-white text-sm" />
+                </div>
+                <h3 className="text-lg font-bold text-white">{plan.name}</h3>
+                <p className="text-sm text-gray-500 mt-0.5">{plan.desc}</p>
               </div>
 
+              {/* Price */}
               <div className="mb-6">
                 <div className="flex items-baseline gap-1">
-                  <span className="text-3xl font-bold text-gray-900 dark:text-white">₹{plan.price[billing].toLocaleString('en-IN')}</span>
-                  <span className="text-sm text-gray-500 dark:text-gray-400">/{billing === 'monthly' ? 'mo' : billing === 'quarterly' ? 'qtr' : 'yr'}</span>
+                  <span className="text-4xl font-bold text-white">₹{plan.price[billing].toLocaleString('en-IN')}</span>
+                  <span className="text-sm text-gray-500">/{billing === 'monthly' ? 'mo' : billing === 'quarterly' ? 'qtr' : 'yr'}</span>
                 </div>
                 {billing !== 'monthly' && (
-                  <p className="text-xs text-accent-600 dark:text-accent-400 font-medium mt-1">
-                    Save ₹{((plan.price.monthly * (billing === 'quarterly' ? 3 : 12)) - plan.price[billing]).toLocaleString('en-IN')} vs monthly
+                  <p className="text-xs text-emerald-400 font-medium mt-1">
+                    Save ₹{((plan.price.monthly * (billing === 'quarterly' ? 3 : 12)) - plan.price[billing]).toLocaleString('en-IN')}
                   </p>
                 )}
               </div>
 
+              {/* CTA */}
               <Link
                 to="/register"
                 className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-semibold text-sm transition-all mb-6 ${
-                  plan.popular
-                    ? 'bg-primary-600 hover:bg-primary-700 text-white shadow-sm'
-                    : 'bg-gray-100 dark:bg-surface-700 hover:bg-gray-200 dark:hover:bg-surface-600 text-gray-900 dark:text-white'
+                  plan.popular ? 'btn-primary' : 'btn-secondary'
                 }`}
               >
                 Start Free Trial <FiArrowRight className="text-xs" />
               </Link>
 
+              {/* Features */}
               <ul className="space-y-2.5">
                 {plan.features.map((f, i) => (
                   <li key={i} className="flex items-start gap-2.5 text-sm">
-                    {f.included ? (
-                      <FiCheck className="text-accent-500 mt-0.5 flex-shrink-0" />
-                    ) : (
-                      <FiX className="text-gray-300 dark:text-gray-600 mt-0.5 flex-shrink-0" />
-                    )}
-                    <span className={f.included ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400 dark:text-gray-600'}>
-                      {f.text}
-                    </span>
+                    <FiCheck className="text-emerald-400 mt-0.5 flex-shrink-0 text-xs" />
+                    <span className="text-gray-300">{f}</span>
+                  </li>
+                ))}
+                {plan.excluded.map((f, i) => (
+                  <li key={`ex-${i}`} className="flex items-start gap-2.5 text-sm">
+                    <FiX className="text-gray-700 mt-0.5 flex-shrink-0 text-xs" />
+                    <span className="text-gray-600">{f}</span>
                   </li>
                 ))}
               </ul>
@@ -192,37 +187,16 @@ export default function Pricing() {
           ))}
         </div>
 
-        {/* Social Proof */}
-        <div className="mb-20">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white text-center mb-8">
-            Trusted by doctors across India
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {testimonials.map((t, i) => (
-              <div key={i} className="card-flat !p-5">
-                <p className="text-sm text-gray-600 dark:text-gray-300 italic mb-3">"{t.text}"</p>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">{t.name}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{t.city}</p>
-                  </div>
-                  <span className="badge badge-primary text-[10px]">{t.plan}</span>
-                </div>
-              </div>
-            ))}
+        {/* Trust */}
+        <div className="text-center relative z-10">
+          <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-500">
+            <span className="flex items-center gap-1.5"><FiShield className="text-emerald-400" /> Bank-grade encryption</span>
+            <span className="flex items-center gap-1.5"><FiCheck className="text-emerald-400" /> GST compliant</span>
+            <span className="flex items-center gap-1.5"><FiCheck className="text-emerald-400" /> Cancel anytime</span>
+            <span className="flex items-center gap-1.5"><FiPhone className="text-emerald-400" /> Indian support</span>
           </div>
-        </div>
-
-        {/* FAQ / Trust */}
-        <div className="text-center pb-8">
-          <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-500 dark:text-gray-400">
-            <span className="flex items-center gap-1.5"><FiShield className="text-accent-500" /> Bank-grade encryption</span>
-            <span className="flex items-center gap-1.5"><FiCheck className="text-accent-500" /> GST compliant invoices</span>
-            <span className="flex items-center gap-1.5"><FiCheck className="text-accent-500" /> Cancel anytime</span>
-            <span className="flex items-center gap-1.5"><FiPhone className="text-accent-500" /> Indian support team</span>
-          </div>
-          <p className="mt-6 text-sm text-gray-500 dark:text-gray-400">
-            Need a custom plan for your hospital? <a href="mailto:sales@docclinic.com" className="text-primary-600 font-semibold hover:underline">Contact Sales</a>
+          <p className="mt-6 text-sm text-gray-500">
+            Need a custom plan? <a href="mailto:sales@docclinic.com" className="text-indigo-400 font-semibold hover:text-indigo-300 transition-colors">Contact Sales</a>
           </p>
         </div>
       </div>

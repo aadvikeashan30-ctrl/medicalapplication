@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   FiUsers, FiCalendar, FiTrendingUp, FiClock,
   FiAlertCircle, FiUserPlus, FiActivity, FiDollarSign, FiRefreshCw,
-  FiArrowUpRight, FiCheckCircle, FiArrowUp, FiArrowDown
+  FiArrowUpRight, FiCheckCircle, FiArrowUp, FiPlay, FiCheck
 } from 'react-icons/fi';
 import { FaWhatsapp, FaRupeeSign } from 'react-icons/fa';
 import toast from 'react-hot-toast';
@@ -21,11 +21,11 @@ import TodayScheduleWidget from '../components/TodayScheduleWidget';
 const greetingForHour = (h) => (h < 12 ? 'Good Morning' : h < 17 ? 'Good Afternoon' : 'Good Evening');
 
 const statusColors = {
-  completed: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
-  'in-progress': 'bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300',
-  scheduled: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400',
-  confirmed: 'bg-sky-50 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300',
-  cancelled: 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300'
+  completed: 'badge-success',
+  'in-progress': 'badge-info',
+  scheduled: 'badge-primary',
+  confirmed: 'badge-primary',
+  cancelled: 'badge-danger'
 };
 
 export default function Dashboard() {
@@ -57,7 +57,7 @@ export default function Dashboard() {
       await api.put(`/appointments/${id}`, { status: 'in-progress' });
       refetchQueue();
       refetchStats();
-      toast.success('Patient called');
+      toast.success('Patient called in');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed');
     }
@@ -77,56 +77,52 @@ export default function Dashboard() {
   const statCards = [
     {
       icon: FiUsers,
-      iconBg: 'bg-primary-50 dark:bg-primary-900/20',
-      iconColor: 'text-primary-600 dark:text-primary-400',
       label: 'Total Patients',
       value: stats?.totalPatients ?? 0,
       sub: stats?.newPatientsThisMonth ? `+${stats.newPatientsThisMonth} this month` : null,
-      subIcon: FiArrowUp,
-      subColor: 'text-emerald-600'
+      gradient: 'from-indigo-500 to-purple-600',
+      glow: '--glow-primary',
+      iconGlow: 'glow-indigo'
     },
     {
       icon: FiCalendar,
-      iconBg: 'bg-purple-50 dark:bg-purple-900/20',
-      iconColor: 'text-purple-600 dark:text-purple-400',
       label: "Today's Appointments",
       value: stats?.todayAppointments ?? 0,
       sub: stats?.todayCompleted ? `${stats.todayCompleted} completed` : null,
-      subIcon: FiCheckCircle,
-      subColor: 'text-emerald-600'
+      gradient: 'from-cyan-500 to-blue-600',
+      glow: '--glow-cyan',
+      iconGlow: 'glow-cyan'
     },
     {
       icon: FaRupeeSign,
-      iconBg: 'bg-emerald-50 dark:bg-emerald-900/20',
-      iconColor: 'text-emerald-600 dark:text-emerald-400',
       label: 'Monthly Revenue',
       value: stats?.monthRevenue ?? 0,
       isRevenue: true,
       sub: revenue?.today ? `₹${revenue.today.toLocaleString('en-IN')} today` : null,
-      subIcon: FiTrendingUp,
-      subColor: 'text-emerald-600'
+      gradient: 'from-emerald-500 to-teal-600',
+      glow: '--glow-emerald',
+      iconGlow: 'glow-emerald'
     },
     {
       icon: FiAlertCircle,
-      iconBg: 'bg-amber-50 dark:bg-amber-900/20',
-      iconColor: 'text-amber-600 dark:text-amber-400',
       label: 'Pending Payments',
       value: stats?.pendingPayments ?? 0,
       sub: 'Requires follow-up',
-      subIcon: FiClock,
-      subColor: 'text-amber-600'
+      gradient: 'from-amber-500 to-orange-600',
+      glow: '--glow-amber',
+      iconGlow: 'glow-amber'
     }
   ];
 
   return (
-    <div className="animate-fade-up space-y-6">
-      {/* Welcome Section */}
+    <div className="space-y-6">
+      {/* Welcome Hero */}
       <WelcomeHero greeting={greeting} doctorName={user.name || 'Doctor'} stats={stats} />
 
       {/* Action Bar */}
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2 animate-fade-up" style={{ animationDelay: '100ms' }}>
         <button
-          onClick={() => { refetchStats(); refetchQueue(); toast.success('Dashboard refreshed'); }}
+          onClick={() => { refetchStats(); refetchQueue(); toast.success('Refreshed'); }}
           className="btn-ghost text-sm !py-2 !px-3"
         >
           <FiRefreshCw className="text-sm" /> Refresh
@@ -139,19 +135,19 @@ export default function Dashboard() {
           disabled={sendingReminders}
           className="btn-success text-sm !py-2 !px-4"
         >
-          <FaWhatsapp className="text-sm" />
+          <FaWhatsapp />
           {sendingReminders ? 'Sending...' : 'Send Reminders'}
         </button>
       </div>
 
-      {/* Error State */}
+      {/* Error */}
       {statsError && (
-        <div className="rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 text-sm flex items-center gap-2">
+        <div className="rounded-xl border border-rose-500/20 px-4 py-3 text-sm text-rose-300 flex items-center gap-2" style={{ background: 'rgba(244, 63, 94, 0.06)' }}>
           <FiAlertCircle /> {statsError}
         </div>
       )}
 
-      {/* Stat Cards */}
+      {/* ═══════ STAT CARDS ═══════ */}
       {statsLoading ? (
         <Loader label="Loading dashboard..." />
       ) : (
@@ -160,26 +156,27 @@ export default function Dashboard() {
             <div
               key={c.label}
               className="stat-card animate-fade-up"
-              style={{ animationDelay: `${idx * 80}ms` }}
+              style={{ animationDelay: `${(idx + 1) * 100}ms`, '--card-glow': `var(${c.glow})` }}
             >
-              <div className="flex items-start justify-between">
-                <div className={`w-10 h-10 rounded-xl ${c.iconBg} flex items-center justify-center`}>
-                  <c.icon className={`text-lg ${c.iconColor}`} />
-                </div>
+              {/* Gradient icon */}
+              <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${c.gradient} flex items-center justify-center ${c.iconGlow} mb-4`}>
+                <c.icon className="text-white text-lg" />
               </div>
-              <div className="mt-4">
-                <p className="text-2xl font-bold text-gray-900 dark:text-white tabular-nums">
-                  {c.isRevenue ? (
-                    <>₹<AnimatedCounter end={Number(c.value || 0)} /></>
-                  ) : (
-                    <AnimatedCounter end={c.value} />
-                  )}
-                </p>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{c.label}</p>
-              </div>
+
+              {/* Value */}
+              <p className="text-3xl font-bold text-white tabular-nums animate-counter">
+                {c.isRevenue ? (
+                  <><span className="text-xl opacity-60">₹</span><AnimatedCounter end={Number(c.value || 0)} /></>
+                ) : (
+                  <AnimatedCounter end={c.value} />
+                )}
+              </p>
+              <p className="text-sm text-gray-400 mt-1">{c.label}</p>
+
+              {/* Sub info */}
               {c.sub && (
-                <div className={`flex items-center gap-1 mt-3 text-xs font-medium ${c.subColor}`}>
-                  <c.subIcon className="text-[10px]" />
+                <div className="flex items-center gap-1.5 mt-3 text-xs font-medium text-emerald-400">
+                  <FiArrowUp className="text-[10px]" />
                   <span>{c.sub}</span>
                 </div>
               )}
@@ -188,19 +185,19 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Main Grid */}
+      {/* ═══════ MAIN GRID ═══════ */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Patient Queue - Main */}
-        <div className="lg:col-span-2 card-flat">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-              <FiClock className="text-primary-500" />
+        {/* Live Queue - 2 columns */}
+        <div className="lg:col-span-2 card animate-fade-up" style={{ animationDelay: '300ms' }}>
+          <div className="flex items-center justify-between mb-5">
+            <h3 className="text-base font-semibold text-white flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               Live Queue
               {queue && queue.length > 0 && (
-                <span className="badge badge-primary">{queue.length} waiting</span>
+                <span className="badge badge-primary ml-2">{queue.length}</span>
               )}
             </h3>
-            <Link to="/appointments" className="text-sm text-primary-600 dark:text-primary-400 font-medium hover:underline flex items-center gap-1">
+            <Link to="/appointments" className="text-sm text-indigo-400 font-medium hover:text-indigo-300 flex items-center gap-1 transition-colors">
               View All <FiArrowUpRight className="text-xs" />
             </Link>
           </div>
@@ -211,34 +208,35 @@ export default function Dashboard() {
             <EmptyState
               icon={FiCalendar}
               title="No patients in queue"
-              message="Appointments for today will show here as patients arrive."
-              action={<Link to="/appointments" className="btn-primary text-sm">Book Appointment</Link>}
+              message="Appointments for today will appear here."
+              action={<Link to="/appointments" className="btn-primary text-sm !py-2">Book Appointment</Link>}
             />
           ) : (
             <div className="space-y-2">
               {queue.map((apt, idx) => (
                 <div
                   key={apt._id}
-                  className={`flex items-center justify-between p-3.5 rounded-xl border transition-all duration-200 animate-slide-in group ${
+                  className={`flex items-center justify-between p-3.5 rounded-xl border transition-all duration-300 group animate-slide-in ${
                     apt.status === 'in-progress'
-                      ? 'border-primary-200 dark:border-primary-800 bg-primary-50/50 dark:bg-primary-900/10'
-                      : 'border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700'
+                      ? 'border-cyan-500/30 bg-cyan-500/5'
+                      : 'border-white/5 hover:border-indigo-500/20 hover:bg-white/[0.02]'
                   }`}
-                  style={{ animationDelay: `${idx * 40}ms` }}
+                  style={{ animationDelay: `${idx * 60}ms` }}
                 >
                   <div className="flex items-center gap-3">
-                    <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold ${
+                    {/* Token */}
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-xs font-bold ${
                       apt.status === 'completed'
-                        ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300'
+                        ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                         : apt.status === 'in-progress'
-                        ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300'
-                        : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+                        ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'
+                        : 'bg-white/5 text-gray-400 border border-white/10'
                     }`}>
-                      {apt.status === 'completed' ? <FiCheckCircle className="text-sm" /> : `#${apt.tokenNumber}`}
+                      {apt.status === 'completed' ? <FiCheckCircle /> : `#${apt.tokenNumber}`}
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">{apt.patientId?.name || 'Patient'}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">{apt.timeSlot} · {apt.type}</p>
+                      <p className="text-sm font-medium text-white">{apt.patientId?.name || 'Patient'}</p>
+                      <p className="text-xs text-gray-500">{apt.timeSlot} · {apt.type}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -248,17 +246,17 @@ export default function Dashboard() {
                     {apt.status === 'scheduled' && (
                       <button
                         onClick={() => startAppt(apt._id)}
-                        className="text-xs font-medium text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 px-2.5 py-1 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                        className="opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-center gap-1 text-xs font-medium text-indigo-400 hover:text-white bg-indigo-500/10 hover:bg-indigo-500/20 px-2.5 py-1.5 rounded-lg border border-indigo-500/20"
                       >
-                        Call In
+                        <FiPlay className="text-[10px]" /> Call In
                       </button>
                     )}
                     {apt.status === 'in-progress' && (
                       <button
                         onClick={() => completeAppt(apt._id)}
-                        className="text-xs font-medium text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 px-2.5 py-1 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                        className="opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-center gap-1 text-xs font-medium text-emerald-400 hover:text-white bg-emerald-500/10 hover:bg-emerald-500/20 px-2.5 py-1.5 rounded-lg border border-emerald-500/20"
                       >
-                        Complete
+                        <FiCheck className="text-[10px]" /> Done
                       </button>
                     )}
                   </div>
@@ -271,58 +269,56 @@ export default function Dashboard() {
         {/* Right Column */}
         <div className="space-y-6">
           {/* Quick Actions */}
-          <div className="card-flat">
-            <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h3>
+          <div className="card animate-fade-up" style={{ animationDelay: '400ms' }}>
+            <h3 className="text-base font-semibold text-white mb-4">Quick Actions</h3>
             <div className="grid grid-cols-2 gap-2.5">
               <Link to="/patients" className="quick-action-btn">
-                <div className="w-9 h-9 rounded-xl bg-primary-50 dark:bg-primary-900/20 flex items-center justify-center">
-                  <FiUserPlus className="text-primary-600 dark:text-primary-400" />
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                  <FiUserPlus className="text-white text-sm" />
                 </div>
-                <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Add Patient</span>
+                <span className="text-xs font-medium text-gray-400">Add Patient</span>
               </Link>
               <Link to="/appointments" className="quick-action-btn">
-                <div className="w-9 h-9 rounded-xl bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center">
-                  <FiCalendar className="text-purple-600 dark:text-purple-400" />
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
+                  <FiCalendar className="text-white text-sm" />
                 </div>
-                <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Book Appt</span>
+                <span className="text-xs font-medium text-gray-400">Book Appt</span>
               </Link>
               <Link to="/prescriptions" className="quick-action-btn">
-                <div className="w-9 h-9 rounded-xl bg-medical-50 dark:bg-medical-900/20 flex items-center justify-center">
-                  <FiActivity className="text-medical-600 dark:text-medical-400" />
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
+                  <FiActivity className="text-white text-sm" />
                 </div>
-                <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Prescribe</span>
+                <span className="text-xs font-medium text-gray-400">Prescribe</span>
               </Link>
               <Link to="/billing" className="quick-action-btn">
-                <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center">
-                  <FiDollarSign className="text-emerald-600 dark:text-emerald-400" />
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
+                  <FiDollarSign className="text-white text-sm" />
                 </div>
-                <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Create Bill</span>
+                <span className="text-xs font-medium text-gray-400">Create Bill</span>
               </Link>
             </div>
           </div>
 
           {/* Revenue Summary */}
           {revenue && (
-            <div className="card-flat">
-              <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                <FiDollarSign className="text-emerald-500" /> Revenue
+            <div className="card animate-fade-up" style={{ animationDelay: '500ms' }}>
+              <h3 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
+                <FiTrendingUp className="text-emerald-400" /> Revenue
               </h3>
               <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-500 dark:text-gray-400">Today</span>
-                  <span className="text-sm font-semibold text-gray-900 dark:text-white tabular-nums">₹{(revenue.today || 0).toLocaleString('en-IN')}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-500 dark:text-gray-400">This Week</span>
-                  <span className="text-sm font-semibold text-gray-900 dark:text-white tabular-nums">₹{(revenue.week || 0).toLocaleString('en-IN')}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-500 dark:text-gray-400">This Month</span>
-                  <span className="text-sm font-semibold text-gray-900 dark:text-white tabular-nums">₹{(revenue.month || 0).toLocaleString('en-IN')}</span>
-                </div>
-                <div className="pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">All Time</span>
-                  <span className="text-base font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">₹{(revenue.total || 0).toLocaleString('en-IN')}</span>
+                {[
+                  { label: 'Today', value: revenue.today },
+                  { label: 'This Week', value: revenue.week },
+                  { label: 'This Month', value: revenue.month },
+                ].map((r) => (
+                  <div key={r.label} className="flex items-center justify-between">
+                    <span className="text-sm text-gray-500">{r.label}</span>
+                    <span className="text-sm font-semibold text-white tabular-nums">₹{(r.value || 0).toLocaleString('en-IN')}</span>
+                  </div>
+                ))}
+                <div className="pt-3 border-t border-white/5 flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-300">All Time</span>
+                  <span className="text-lg font-bold gradient-text-cyan tabular-nums">₹{(revenue.total || 0).toLocaleString('en-IN')}</span>
                 </div>
               </div>
             </div>
@@ -330,18 +326,18 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Revenue Chart & P&L */}
+      {/* ═══════ CHARTS ROW ═══════ */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="card-flat">
-          <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-            <FiTrendingUp className="text-primary-500" /> Revenue Trend
+        <div className="card animate-fade-up" style={{ animationDelay: '600ms' }}>
+          <h3 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
+            <FiTrendingUp className="text-indigo-400" /> Revenue Trend
           </h3>
           <RevenueChart monthly={analytics?.monthlyRevenue || []} />
         </div>
         <ProfitLossWidget />
       </div>
 
-      {/* Today's Schedule */}
+      {/* Today Schedule */}
       <TodayScheduleWidget />
     </div>
   );
