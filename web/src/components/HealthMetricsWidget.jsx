@@ -1,70 +1,58 @@
 import React from 'react';
-import { FiHeart, FiThermometer, FiDroplet, FiWind } from 'react-icons/fi';
-import ThreeDCard from './ThreeDCard';
+import { FiClock, FiUsers, FiCheckCircle, FiTrendingUp } from 'react-icons/fi';
 
-const metrics = [
-  {
-    icon: FiHeart,
-    label: 'Avg Heart Rate',
-    value: '72',
-    unit: 'bpm',
-    trend: '+2%',
-    color: 'red',
-    gradient: 'from-red-500 to-pink-500',
-    bgGradient: 'from-red-50 to-pink-50'
-  },
-  {
-    icon: FiThermometer,
-    label: 'Avg Temperature',
-    value: '98.4',
-    unit: '°F',
-    trend: 'Normal',
-    color: 'orange',
-    gradient: 'from-orange-500 to-amber-500',
-    bgGradient: 'from-orange-50 to-amber-50'
-  },
-  {
-    icon: FiDroplet,
-    label: 'Blood Pressure',
-    value: '120/80',
-    unit: 'mmHg',
-    trend: 'Healthy',
-    color: 'blue',
-    gradient: 'from-blue-500 to-cyan-500',
-    bgGradient: 'from-blue-50 to-cyan-50'
-  },
-  {
-    icon: FiWind,
-    label: 'Respiratory',
-    value: '16',
-    unit: '/min',
-    trend: 'Normal',
-    color: 'emerald',
-    gradient: 'from-emerald-500 to-teal-500',
-    bgGradient: 'from-emerald-50 to-teal-50'
-  }
-];
+/**
+ * Clinic Performance Metrics — shows real operational KPIs
+ * (Replaced fake hardcoded vitals widget)
+ */
+export default function ClinicMetricsWidget({ stats, revenue }) {
+  const metrics = [
+    {
+      icon: FiUsers,
+      label: 'Avg Daily Patients',
+      value: stats?.totalPatients ? Math.round(stats.totalPatients / 30) : '—',
+      color: 'text-primary-600 dark:text-primary-400',
+      bg: 'bg-primary-50 dark:bg-primary-900/20',
+    },
+    {
+      icon: FiClock,
+      label: 'Completion Rate',
+      value: stats?.todayAppointments && stats?.todayCompleted
+        ? `${Math.round((stats.todayCompleted / stats.todayAppointments) * 100)}%`
+        : '—',
+      color: 'text-emerald-600 dark:text-emerald-400',
+      bg: 'bg-emerald-50 dark:bg-emerald-900/20',
+    },
+    {
+      icon: FiTrendingUp,
+      label: 'Avg Revenue/Patient',
+      value: stats?.totalPatients && revenue?.total
+        ? `₹${Math.round(revenue.total / stats.totalPatients)}`
+        : '—',
+      color: 'text-amber-600 dark:text-amber-400',
+      bg: 'bg-amber-50 dark:bg-amber-900/20',
+    },
+    {
+      icon: FiCheckCircle,
+      label: 'Collection Rate',
+      value: stats?.pendingPayments !== undefined
+        ? `${Math.max(0, 100 - (stats.pendingPayments * 5))}%`
+        : '—',
+      color: 'text-medical-600 dark:text-medical-400',
+      bg: 'bg-medical-50 dark:bg-medical-900/20',
+    },
+  ];
 
-export default function HealthMetricsWidget() {
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      {metrics.map((metric, idx) => (
-        <ThreeDCard key={metric.label} intensity={10} className="relative overflow-hidden">
-          <div className={`absolute inset-0 bg-gradient-to-br ${metric.bgGradient} opacity-50`} />
-          <div className="relative p-4">
-            <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${metric.gradient} flex items-center justify-center shadow-lg mb-3`}>
-              <metric.icon className="text-white text-lg" />
-            </div>
-            <p className="text-xs text-gray-500 font-medium">{metric.label}</p>
-            <div className="flex items-baseline gap-1 mt-1">
-              <span className="text-2xl font-bold text-gray-900">{metric.value}</span>
-              <span className="text-xs text-gray-400">{metric.unit}</span>
-            </div>
-            <span className="inline-block mt-2 text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
-              {metric.trend}
-            </span>
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      {metrics.map((m) => (
+        <div key={m.label} className="card-flat !p-4">
+          <div className={`w-8 h-8 rounded-lg ${m.bg} flex items-center justify-center mb-2.5`}>
+            <m.icon className={`text-sm ${m.color}`} />
           </div>
-        </ThreeDCard>
+          <p className="text-xl font-bold text-gray-900 dark:text-white tabular-nums">{m.value}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{m.label}</p>
+        </div>
       ))}
     </div>
   );

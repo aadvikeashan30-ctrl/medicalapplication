@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaStethoscope, FaHeartbeat, FaUserMd, FaCapsules } from 'react-icons/fa';
-import { FiMail, FiLock, FiEye, FiEyeOff, FiShield, FiActivity, FiZap } from 'react-icons/fi';
+import { FiMail, FiLock, FiEye, FiEyeOff, FiShield, FiUsers, FiCalendar, FiBarChart2 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import api from '../utils/api';
 import { setSession } from '../utils/auth';
@@ -21,134 +20,107 @@ export default function Login() {
       toast.success(`Welcome back, Dr. ${data.user.name}!`);
       navigate('/');
     } catch (error) {
-      // If backend is unreachable (500/network error) and using demo credentials, do client-side demo login
+      // If backend is unreachable and using demo credentials, do client-side demo login
       const isNetworkOrServerError = !error.response || error.response.status >= 500;
       const isDemoCredentials = form.email === 'demo@docclinic.com' && form.password === 'demo1234';
 
       if (isNetworkOrServerError && isDemoCredentials) {
-        // Client-side demo fallback — works even without backend
         const demoUser = {
-          _id: 'demo-doctor-001',
-          id: 'demo-doctor-001',
-          name: 'Demo Doctor',
-          email: 'demo@docclinic.com',
-          phone: '9000000000',
-          role: 'doctor',
-          specialty: 'general',
-          qualification: 'MBBS, MD',
-          clinicName: 'DocClinic Demo Centre',
-          clinicCity: 'Mumbai',
-          consultationFee: 500,
-          plan: 'pro',
-          isActive: true
+          _id: 'demo-doctor-001', id: 'demo-doctor-001',
+          name: 'Demo Doctor', email: 'demo@docclinic.com',
+          phone: '9000000000', role: 'doctor', specialty: 'general',
+          qualification: 'MBBS, MD', clinicName: 'DocClinic Demo Centre',
+          clinicCity: 'Mumbai', consultationFee: 500, plan: 'pro', isActive: true
         };
-        const demoToken = 'demo-token-' + Date.now();
-        setSession(demoToken, demoUser);
+        setSession('demo-token-' + Date.now(), demoUser);
         toast.success(`Welcome back, Dr. ${demoUser.name}! (Demo Mode)`);
         navigate('/');
       } else {
-        toast.error(error.response?.data?.message || 'Login failed. Make sure the backend server is running.');
+        toast.error(error.response?.data?.message || 'Login failed. Check your credentials.');
       }
     } finally {
       setLoading(false);
     }
   };
 
-  const [animStep, setAnimStep] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => setAnimStep(s => (s + 1) % 4), 3000);
-    return () => clearInterval(interval);
-  }, []);
-
   const features = [
-    { icon: FiActivity, text: 'AI-Powered Diagnosis & Prescriptions', color: 'text-emerald-300' },
-    { icon: FiShield, text: 'HIPAA-Ready Patient Data Security', color: 'text-blue-300' },
-    { icon: FiZap, text: 'WhatsApp Reminders & Voice Notes', color: 'text-amber-300' },
-    { icon: FaHeartbeat, text: 'Real-time Analytics & Reports', color: 'text-pink-300' }
+    { icon: FiUsers, title: '10,000+', desc: 'Active Doctors' },
+    { icon: FiCalendar, title: '50L+', desc: 'Appointments Managed' },
+    { icon: FiBarChart2, title: '₹200Cr+', desc: 'Revenue Processed' },
   ];
 
   return (
     <div className="min-h-screen flex">
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-600 via-indigo-700 to-violet-900 p-12 flex-col justify-between relative overflow-hidden">
-        {/* Animated background elements */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full -translate-y-1/2 translate-x-1/2 floating-orb" />
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-violet-500/15 rounded-full translate-y-1/2 -translate-x-1/2 floating-orb" style={{ animationDelay: '2s' }} />
-        <div className="absolute top-1/3 left-1/4 w-32 h-32 bg-cyan-400/10 rounded-full floating-orb" style={{ animationDelay: '4s' }} />
-
-        {/* Dot grid pattern */}
-        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
+      {/* Left Panel - Branding */}
+      <div className="hidden lg:flex lg:w-[45%] bg-gradient-to-br from-primary-900 via-primary-800 to-surface-900 p-12 flex-col justify-between relative overflow-hidden">
+        {/* Background elements */}
+        <div className="absolute top-0 right-0 w-80 h-80 bg-primary-500/10 rounded-full -translate-y-1/3 translate-x-1/3" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-accent-500/8 rounded-full translate-y-1/3 -translate-x-1/4" />
+        <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
 
         <div className="relative z-10">
           <div className="flex items-center gap-3 mb-16">
-            <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-xl border border-white/10 rotate-3d-hover">
-              <FaHeartbeat className="text-white text-xl" />
+            <div className="w-11 h-11 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/10">
+              <span className="text-white font-bold text-lg">DC</span>
             </div>
             <div>
-              <span className="text-2xl font-bold text-white">DocClinic Pro</span>
-              <p className="text-[10px] text-blue-300 tracking-widest uppercase">AI-Powered Healthcare</p>
+              <span className="text-xl font-bold text-white">DocClinic Pro</span>
+              <p className="text-[10px] text-primary-300 tracking-widest uppercase">Healthcare Platform</p>
             </div>
           </div>
-          <h2 className="text-4xl font-bold text-white leading-tight mb-6">
-            The Future of<br />Clinic Management<br />
-            <span className="bg-gradient-to-r from-cyan-300 to-blue-300 bg-clip-text text-transparent">Is Here</span>
+
+          <h2 className="text-3xl font-bold text-white leading-tight mb-4">
+            Modern Clinic<br />Management for<br />
+            <span className="text-accent-400">Indian Doctors</span>
           </h2>
-          <p className="text-blue-200 text-lg max-w-md leading-relaxed">
-            AI diagnosis, digital prescriptions, WhatsApp integration, voice notes — everything a modern doctor needs in one platform.
+          <p className="text-primary-200 text-base max-w-sm leading-relaxed">
+            Manage patients, appointments, billing, prescriptions, and grow your practice — all in one place.
           </p>
         </div>
 
-        {/* Animated feature carousel */}
-        <div className="relative z-10 space-y-4">
-          {features.map((feat, idx) => (
-            <div
-              key={idx}
-              className={`flex items-center gap-3 p-3 rounded-xl transition-all duration-500 ${
-                animStep === idx ? 'bg-white/15 backdrop-blur-sm scale-105 shadow-lg' : 'opacity-70'
-              }`}
-            >
-              <div className={`w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center ${animStep === idx ? 'animate-pulse' : ''}`}>
-                <feat.icon className={`${feat.color}`} />
+        {/* Trust indicators */}
+        <div className="relative z-10">
+          <div className="grid grid-cols-3 gap-4 mb-8">
+            {features.map((f) => (
+              <div key={f.title} className="text-center">
+                <f.icon className="text-primary-300 text-lg mx-auto mb-2" />
+                <p className="text-white font-bold text-lg">{f.title}</p>
+                <p className="text-primary-300 text-xs">{f.desc}</p>
               </div>
-              <span className="text-blue-100 text-sm font-medium">{feat.text}</span>
-            </div>
-          ))}
+            ))}
+          </div>
 
-          <div className="mt-6 flex items-center gap-4 pt-4 border-t border-white/10">
-            <div className="flex -space-x-2">
-              {[FaUserMd, FaCapsules, FaStethoscope].map((Icon, i) => (
-                <div key={i} className="w-8 h-8 bg-white/20 backdrop-blur rounded-full border-2 border-white/30 flex items-center justify-center">
-                  <Icon className="text-white text-xs" />
-                </div>
-              ))}
-            </div>
-            <span className="text-blue-200 text-sm">Trusted by <strong className="text-white">1,000+</strong> doctors across India</span>
+          <div className="flex items-center gap-3 pt-4 border-t border-white/10">
+            <FiShield className="text-accent-400" />
+            <span className="text-primary-200 text-sm">HIPAA-ready · GST compliant · Bank-grade encryption</span>
           </div>
         </div>
       </div>
 
-      <div className="flex-1 flex items-center justify-center p-8 bg-gray-50 dark:bg-gray-900">
+      {/* Right Panel - Form */}
+      <div className="flex-1 flex items-center justify-center p-6 lg:p-12 bg-white dark:bg-surface-950">
         <div className="w-full max-w-md">
+          {/* Mobile logo */}
           <div className="lg:hidden flex items-center gap-3 mb-8">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg">
-              <FaHeartbeat className="text-white" />
+            <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl flex items-center justify-center">
+              <span className="text-white font-bold">DC</span>
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">DocClinic Pro</span>
+            <span className="text-lg font-bold text-gray-900 dark:text-white">DocClinic Pro</span>
           </div>
 
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Welcome Back</h2>
-          <p className="text-gray-500 mb-8">Sign in to manage your clinic</p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">Welcome back</h2>
+          <p className="text-gray-500 dark:text-gray-400 mb-8 text-sm">Sign in to your clinic dashboard</p>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Email Address</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Email</label>
               <div className="relative">
-                <FiMail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                <FiMail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm" />
                 <input
                   type="email"
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  className="input-field pl-11"
+                  className="input-field pl-10"
                   placeholder="doctor@clinic.com"
                   required
                 />
@@ -158,50 +130,54 @@ export default function Login() {
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Password</label>
               <div className="relative">
-                <FiLock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                <FiLock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
-                  className="input-field pl-11 pr-11"
+                  className="input-field pl-10 pr-10"
                   placeholder="Enter your password"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                  aria-label="Toggle password visibility"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
-                  {showPassword ? <FiEyeOff /> : <FiEye />}
+                  {showPassword ? <FiEyeOff className="text-sm" /> : <FiEye className="text-sm" />}
                 </button>
               </div>
             </div>
 
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500" />
                 <span className="text-sm text-gray-600 dark:text-gray-400">Remember me</span>
               </label>
-              <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+              <Link to="/forgot-password" className="text-sm text-primary-600 hover:text-primary-700 font-medium">
                 Forgot password?
               </Link>
             </div>
 
-            <button type="submit" disabled={loading} className="btn-primary w-full py-3.5 text-center text-base">
-              {loading ? 'Signing in...' : 'Sign In to Dashboard'}
+            <button type="submit" disabled={loading} className="btn-primary w-full py-3 text-sm">
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg>
+                  Signing in...
+                </span>
+              ) : 'Sign In'}
             </button>
           </form>
 
-          {/* Demo credentials hint */}
-          <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
-            <p className="text-xs font-semibold text-blue-700 dark:text-blue-400 mb-1">Demo Credentials</p>
-            <p className="text-xs text-blue-600 dark:text-blue-300 font-mono">demo@docclinic.com / demo1234</p>
+          {/* Demo hint */}
+          <div className="mt-6 p-3.5 bg-gray-50 dark:bg-surface-800 rounded-xl border border-gray-100 dark:border-gray-800">
+            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Demo Access</p>
+            <p className="text-xs text-gray-600 dark:text-gray-300 font-mono">demo@docclinic.com / demo1234</p>
           </div>
 
-          <p className="text-center mt-6 text-gray-500 dark:text-gray-400">
-            Don't have an account?{' '}
-            <Link to="/register" className="text-blue-600 font-semibold hover:text-blue-700">
+          <p className="text-center mt-6 text-sm text-gray-500 dark:text-gray-400">
+            New to DocClinic?{' '}
+            <Link to="/register" className="text-primary-600 font-semibold hover:text-primary-700">
               Start Free Trial
             </Link>
           </p>
