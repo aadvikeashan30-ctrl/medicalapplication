@@ -85,6 +85,22 @@ mongoose
     app.locals.dbConnected = false;
   });
 
+// Track MongoDB connection state changes to prevent 500 errors when DB drops
+mongoose.connection.on('disconnected', () => {
+  logger.warn('MongoDB disconnected — switching to DEMO MODE');
+  app.locals.dbConnected = false;
+});
+
+mongoose.connection.on('reconnected', () => {
+  logger.info('MongoDB reconnected — resuming normal mode');
+  app.locals.dbConnected = true;
+});
+
+mongoose.connection.on('error', (err) => {
+  logger.error(`MongoDB connection error: ${err.message}`);
+  app.locals.dbConnected = false;
+});
+
 // Demo mode routes (MUST come BEFORE real routes so they intercept when DB is unavailable)
 app.use('/api', require('./routes/demo'));
 
