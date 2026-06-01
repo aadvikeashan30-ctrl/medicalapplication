@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { isDemoMode, getDemoResponse, DEMO_RESPONSES } from './demoData';
+import { isDemoMode, getDemoResponse } from './demoData';
 
 // Use environment variable or default to /api (Vite proxy handles this in dev)
 const baseURL = import.meta.env.VITE_API_URL || '/api';
@@ -23,22 +23,39 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // If backend is unreachable (network error, 500, 502, 503) and we're in demo mode
     const isServerDown = !error.response || error.response.status >= 500;
-    
-    if (isServerDown && isDemoMode()) {
-      // Serve demo data from client
+
+    if (isServerDown) {
+      // Check if user is demo user OR if backend is just down
+      const userStr = localStorage.getItem('user');
+      const isDemo = isDemoMode() || (userStr && userStr.includes('demo-doctor-001'));
+      
+      if (isDemo) {
+        // Serve demo data from client
+        const url = error.config?.url || '';
+        const demoData = getDemoResponse(url);
+        return Promise.resolve({
+          data: demoData,
+          status: 200,
+          statusText: 'OK (Demo Mode)',
+          headers: {},
+          config: error.config
+        });
+      }
+
+      // Backend is down but user isn't in demo mode — still try to serve demo data
+      // This prevents blank screens when backend just isn't running
       const url = error.config?.url || '';
       const demoData = getDemoResponse(url);
-      
-      // Return a fake successful response
-      return Promise.resolve({
-        data: demoData,
-        status: 200,
-        statusText: 'OK (Demo Mode)',
-        headers: {},
-        config: error.config
-      });
+      if (demoData && !demoData.message?.includes('no data available')) {
+        return Promise.resolve({
+          data: demoData,
+          status: 200,
+          statusText: 'OK (Offline Fallback)',
+          headers: {},
+          config: error.config
+        });
+      }
     }
 
     // Handle 401 — redirect to login

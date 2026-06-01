@@ -117,7 +117,11 @@ export const DEMO_RESPONSES = {
     { _id: 'med-2', name: 'Amoxicillin', strength: '500mg', form: 'capsule', defaultFrequency: '1-1-1' },
     { _id: 'med-3', name: 'Metformin', strength: '500mg', form: 'tablet', defaultFrequency: '1-0-1' }
   ],
-  '/labtests': { tests: [], total: 0 }
+  '/labtests': { tests: [], total: 0 },
+  '/whatsapp/run-reminders': { processed: 5, sent: 3, failed: 0 },
+  '/ai/status': { provider: 'demo', available: true, features: ['chat', 'diagnosis'] },
+  '/ai/chat': { response: 'Hello Doctor! I am your AI assistant. How can I help?', provider: 'demo' },
+  '/notifications': []
 };
 
 /**
@@ -132,19 +136,33 @@ export function isDemoMode() {
  * Find matching demo response for a URL path
  */
 export function getDemoResponse(url) {
-  // Strip query params and find match
-  const path = url.split('?')[0];
+  // Strip query params for matching
+  const path = url.split('?')[0].replace(/^\/api/, '').replace(/\/$/, '');
+  const cleanPath = path.startsWith('/') ? path : '/' + path;
   
   // Try exact match first
-  if (DEMO_RESPONSES[path]) return DEMO_RESPONSES[path];
+  if (DEMO_RESPONSES[cleanPath]) return DEMO_RESPONSES[cleanPath];
   
-  // Try partial match (e.g., /patients matches /patients?limit=50)
-  for (const key of Object.keys(DEMO_RESPONSES)) {
-    if (path.startsWith(key) || path.endsWith(key)) {
-      return DEMO_RESPONSES[key];
-    }
+  // Try without leading slash
+  const noSlash = cleanPath.replace(/^\//, '');
+  for (const [key, value] of Object.entries(DEMO_RESPONSES)) {
+    const cleanKey = key.replace(/^\//, '');
+    if (noSlash === cleanKey) return value;
+    if (noSlash.startsWith(cleanKey) || cleanKey.startsWith(noSlash)) return value;
   }
-  
-  // Default empty response
-  return { message: 'Demo mode — no data available for this endpoint' };
+
+  // Match common patterns
+  if (cleanPath.includes('patient')) return DEMO_RESPONSES['/patients'];
+  if (cleanPath.includes('appointment')) return DEMO_RESPONSES['/appointments'];
+  if (cleanPath.includes('prescription')) return DEMO_RESPONSES['/prescriptions'];
+  if (cleanPath.includes('billing')) return DEMO_RESPONSES['/billing'];
+  if (cleanPath.includes('medicine')) return DEMO_RESPONSES['/medicines'];
+  if (cleanPath.includes('expense')) return DEMO_RESPONSES['/expenses'];
+  if (cleanPath.includes('labtest') || cleanPath.includes('lab-test')) return DEMO_RESPONSES['/labtests'];
+  if (cleanPath.includes('dashboard/stat')) return DEMO_RESPONSES['/dashboard/stats'];
+  if (cleanPath.includes('dashboard/analytic')) return DEMO_RESPONSES['/dashboard/analytics'];
+  if (cleanPath.includes('revenue')) return DEMO_RESPONSES['/billing/revenue/summary'];
+
+  // Default — return empty but valid response (no error message)
+  return {};
 }
