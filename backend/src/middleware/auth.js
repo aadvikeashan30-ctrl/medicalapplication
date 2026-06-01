@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 const User = require('../models/User');
 
 const DEMO_USER = {
@@ -15,6 +16,8 @@ const DEMO_USER = {
   isActive: true
 };
 
+const DEMO_USER_ID = 'demo-doctor-001';
+
 const auth = async (req, res, next) => {
   try {
     const header = req.header('Authorization') || '';
@@ -24,8 +27,14 @@ const auth = async (req, res, next) => {
     const secret = process.env.JWT_SECRET || 'demo-fallback-secret-key-32chars!!';
     const decoded = jwt.verify(token, secret);
 
-    // Demo mode: if DB is not connected, use the demo user object
-    if (!req.app.locals.dbConnected) {
+    // Demo mode: if DB is not connected OR user has demo token, use demo user
+    if (!req.app.locals.dbConnected || decoded.userId === DEMO_USER_ID) {
+      req.user = DEMO_USER;
+      return next();
+    }
+
+    // Only query DB if connection is actually ready
+    if (mongoose.connection.readyState !== 1) {
       req.user = DEMO_USER;
       return next();
     }

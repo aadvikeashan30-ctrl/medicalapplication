@@ -10,6 +10,7 @@
 
 const express = require('express');
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 const router = express.Router();
 
 // Demo data store (in memory - resets on server restart)
@@ -94,19 +95,38 @@ const DEMO_BILLS = [
 ];
 
 // Middleware: only respond if DB is not connected (demo mode)
+// Also checks actual mongoose connection state to handle race conditions
 function demoOnly(req, res, next) {
-  if (req.app.locals.dbConnected) return next('route');
+  // If DB is truly connected and ready, skip demo routes
+  if (req.app.locals.dbConnected && mongoose.connection.readyState === 1) {
+    // But if user has a demo token, still serve demo data
+    try {
+      const header = req.header('Authorization') || '';
+      const token = header.replace(/^Bearer\s+/i, '').trim();
+      if (token) {
+        const secret = process.env.JWT_SECRET || 'demo-fallback-secret-key-32chars!!';
+        const decoded = jwt.verify(token, secret);
+        if (decoded.userId === 'demo-doctor-001') {
+          return next(); // Serve demo data for demo user even if DB is connected
+        }
+      }
+    } catch (e) { /* ignore token errors, fall through */ }
+    return next('route');
+  }
+  // DB not connected — serve demo data
   next();
 }
 
 // ==================== AUTH ====================
-router.post('/auth/login', demoOnly, (req, res) => {
+// Demo login ALWAYS works — no demoOnly check needed for login
+router.post('/auth/login', (req, res, next) => {
   const { email, password } = req.body;
   if (email === 'demo@docclinic.com' && password === 'demo1234') {
     const token = jwt.sign({ userId: DEMO_USER._id }, process.env.JWT_SECRET || 'demo-fallback-secret-key-32chars!!', { expiresIn: '30d' });
     return res.json({ token, user: DEMO_USER });
   }
-  return res.status(401).json({ message: 'Invalid credentials. Use: demo@docclinic.com / demo1234' });
+  // Not demo credentials — pass to real auth route
+  next('route');
 });
 
 router.post('/auth/register', demoOnly, (req, res) => {
