@@ -4,11 +4,12 @@ import {
   FiClock, FiStar, FiCalendar, FiEdit2, FiCamera,
   FiActivity, FiTrendingUp, FiUsers, FiBookOpen
 } from 'react-icons/fi';
-import { FaStethoscope, FaGraduationCap, FaHospital } from 'react-icons/fa';
+import { FaStethoscope, FaGraduationCap, FaHospital, FaQrcode } from 'react-icons/fa';
 import { getUser } from '../utils/auth';
 import ThreeDCard from '../components/ThreeDCard';
 import AnimatedCounter from '../components/AnimatedCounter';
 import FloatingOrb from '../components/FloatingOrb';
+import QRBookingCode from '../components/QRBookingCode';
 
 export default function DoctorProfile() {
   const user = getUser();
@@ -16,6 +17,7 @@ export default function DoctorProfile() {
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: FiUser },
+    { id: 'qr-booking', label: 'QR Booking', icon: FaQrcode },
     { id: 'achievements', label: 'Achievements', icon: FiAward },
     { id: 'schedule', label: 'Schedule', icon: FiClock },
     { id: 'reviews', label: 'Reviews', icon: FiStar }
@@ -190,6 +192,25 @@ export default function DoctorProfile() {
               <p className="text-3xl font-bold text-blue-600">₹{user.consultationFee || 500}</p>
               <p className="text-xs text-gray-500 mt-1">Per visit (follow-up: ₹{Math.round((user.consultationFee || 500) * 0.6)})</p>
             </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'qr-booking' && (
+        <div className="animate-fade-in max-w-lg mx-auto">
+          <div className="card">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+              <FaQrcode className="text-indigo-600" /> Patient Booking QR Code
+            </h3>
+            <p className="text-sm text-gray-500 mb-6">
+              Print or share this QR code. Patients scan it to book appointments directly with you online.
+            </p>
+            <QRBookingCode />
+          </div>
+          <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
+            <p className="text-sm text-blue-700 dark:text-blue-400">
+              <strong>💡 Tips:</strong> Put this QR on your visiting card, clinic wall, prescription pad, or share via WhatsApp groups to get more patients booking online.
+            </p>
           </div>
         </div>
       )}

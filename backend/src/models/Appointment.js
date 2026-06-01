@@ -22,7 +22,16 @@ const appointmentSchema = new mongoose.Schema(
     notes: { type: String },
     reminderSent: { type: Boolean, default: false },
     reminderSentAt: { type: Date },
-    tokenNumber: { type: Number }
+    tokenNumber: { type: Number },
+    // Payment fields
+    paymentId: { type: String },
+    paymentStatus: { type: String, enum: ['pending', 'paid', 'refunded', 'failed'], default: 'pending' },
+    paymentMethod: { type: String, enum: ['cash', 'online', 'upi', 'card', 'insurance'], default: 'cash' },
+    consultationFee: { type: Number },
+    // Telemedicine
+    consultationMode: { type: String, enum: ['in-person', 'video', 'phone'], default: 'in-person' },
+    videoRoomId: { type: String },
+    videoJoinUrl: { type: String }
   },
   { timestamps: true }
 );

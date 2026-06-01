@@ -4,6 +4,7 @@ const Appointment = require('../models/Appointment');
 const Patient = require('../models/Patient');
 const auth = require('../middleware/auth');
 const { asyncHandler } = require('../middleware/errorHandler');
+const { emitQueueUpdate, emitTokenCalled, emitAppointmentCompleted } = require('../services/socketService');
 
 const router = express.Router();
 
@@ -118,6 +119,18 @@ router.put(
     ).populate('patientId', 'name phone patientId age gender');
 
     if (!appointment) return res.status(404).json({ message: 'Appointment not found' });
+
+    // Emit real-time queue updates
+    try {
+      if (req.body.status === 'in-progress') {
+        emitTokenCalled(appointment._id.toString(), appointment.tokenNumber);
+      } else if (req.body.status === 'completed') {
+        emitAppointmentCompleted(appointment._id.toString());
+      }
+      // Always emit queue update on any status change
+      emitQueueUpdate(req.user._id.toString());
+    } catch (e) { /* non-critical */ }
+
     res.json(appointment);
   })
 );

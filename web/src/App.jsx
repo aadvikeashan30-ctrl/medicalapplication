@@ -32,9 +32,13 @@ import HealthTips from './pages/portal/HealthTips';
 import MedicationReminder from './pages/portal/MedicationReminder';
 import TrackAppointment from './pages/portal/TrackAppointment';
 import Pricing from './pages/portal/Pricing';
+import VideoCall from './pages/portal/VideoCall';
+import FindDoctor from './pages/portal/FindDoctor';
+import DoctorPublicProfile from './pages/portal/DoctorPublicProfile';
+import LandingPage from './pages/portal/LandingPage';
 
 function ProtectedRoute({ children }) {
-  return isLoggedIn() ? children : <Navigate to="/login" replace />;
+  return isLoggedIn() ? children : <Navigate to="/home" replace />;
 }
 
 function PublicOnly({ children }) {
@@ -58,6 +62,7 @@ export default function App() {
       />
       <Routes>
         {/* Patient Portal - Public (no auth) */}
+        <Route path="/home" element={<LandingPage />} />
         <Route path="/symptom-checker" element={<SymptomChecker />} />
         <Route path="/book/:doctorId" element={<BookAppointment />} />
         <Route path="/book" element={<BookAppointment />} />
@@ -66,6 +71,9 @@ export default function App() {
         <Route path="/my-medications" element={<MedicationReminder />} />
         <Route path="/track/:appointmentId" element={<TrackAppointment />} />
         <Route path="/track" element={<TrackAppointment />} />
+        <Route path="/video/:appointmentId" element={<VideoCall />} />
+        <Route path="/find-doctor" element={<FindDoctor />} />
+        <Route path="/doctor/:doctorId" element={<DoctorPublicProfile />} />
         <Route path="/pricing" element={<Pricing />} />
 
         {/* Auth pages */}
