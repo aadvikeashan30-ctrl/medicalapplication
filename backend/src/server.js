@@ -71,7 +71,9 @@ const uploadDir = path.join(__dirname, '..', 'uploads');
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 app.use('/uploads', express.static(uploadDir));
 
-// MongoDB
+// MongoDB — default to demo mode until DB is confirmed connected
+app.locals.dbConnected = false;
+
 const MONGO_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/doctor-clinic';
 mongoose
   .connect(MONGO_URI, { serverSelectionTimeoutMS: 5000 })
@@ -103,6 +105,17 @@ mongoose.connection.on('error', (err) => {
 
 // Demo mode routes (MUST come BEFORE real routes so they intercept when DB is unavailable)
 app.use('/api', require('./routes/demo'));
+
+// DB guard: if somehow a request reaches real routes but DB is actually down, return 503
+// This prevents 500 errors from Mongoose timeout/connection failures
+app.use('/api', (req, res, next) => {
+  if (mongoose.connection.readyState !== 1) {
+    // DB not connected — sync the flag and respond with 503
+    app.locals.dbConnected = false;
+    return res.status(503).json({ message: 'Database temporarily unavailable. Please try again shortly.' });
+  }
+  next();
+});
 
 // Real routes (used when MongoDB IS connected)
 app.use('/api/auth', require('./routes/auth'));
