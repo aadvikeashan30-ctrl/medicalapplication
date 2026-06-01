@@ -378,12 +378,165 @@ router.get(
   })
 );
 
-// Patient submits review
+// Patient submits review (with actual persistence)
 router.post(
   '/review',
   asyncHandler(async (req, res) => {
-    // For MVP, just acknowledge - in production save to a Review model
-    res.json({ message: 'Review submitted successfully. Thank you!' });
+    const { doctorId, patientName, patientPhone, rating, title, comment, tags, appointmentId } = req.body;
+
+    if (!doctorId || !patientName || !rating) {
+      return res.status(400).json({ message: 'doctorId, patientName, and rating are required' });
+    }
+    if (rating < 1 || rating > 5) {
+      return res.status(400).json({ message: 'Rating must be between 1 and 5' });
+    }
+
+    const Review = require('../models/Review');
+
+    // Check if verified via actual appointment
+    let isVerified = false;
+    let patientId = null;
+    if (appointmentId) {
+      const apt = await Appointment.findOne({ _id: appointmentId, status: 'completed' });
+      if (apt) {
+        isVerified = true;
+        patientId = apt.patientId;
+      }
+    } else if (patientPhone) {
+      const patient = await Patient.findOne({ phone: patientPhone, doctorId });
+      if (patient) {
+        isVerified = true;
+        patientId = patient._id;
+      }
+    }
+
+    // Upsert: one review per patient-phone per doctor
+    const review = await Review.findOneAndUpdate(
+      { doctorId, patientPhone: patientPhone || undefined },
+      {
+        doctorId,
+        patientId,
+        appointmentId: appointmentId || undefined,
+        patientName,
+        patientPhone: patientPhone || undefined,
+        rating: Number(rating),
+        title: title || undefined,
+        comment: comment || undefined,
+        tags: tags || [],
+        isVerified
+      },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
+
+    res.status(201).json({ message: 'Review submitted successfully. Thank you!', review: { id: review._id, rating: review.rating, isVerified } });
+  })
+);
+
+// Get reviews for a doctor (public)
+router.get(
+  '/doctor/:doctorId/reviews',
+  asyncHandler(async (req, res) => {
+    const Review = require('../models/Review');
+    const { page = 1, limit = 10, sort = 'recent' } = req.query;
+    const skip = (Number(page) - 1) * Number(limit);
+
+    const sortOrder = sort === 'highest' ? { rating: -1 } : sort === 'lowest' ? { rating: 1 } : { createdAt: -1 };
+
+    const [reviews, stats] = await Promise.all([
+      Review.find({ doctorId: req.params.doctorId, isVisible: true })
+        .sort(sortOrder)
+        .skip(skip)
+        .limit(Number(limit))
+        .select('patientName rating title comment tags isVerified createdAt doctorReply doctorRepliedAt'),
+      Review.getAverageRating(req.params.doctorId)
+    ]);
+
+    res.json({ reviews, ...stats, page: Number(page), limit: Number(limit) });
+  })
+);
+
+// Enhanced doctor search with ratings (public)
+router.get(
+  '/discover',
+  asyncHandler(async (req, res) => {
+    const { city, specialty, search, sort, page = 1, limit = 12 } = req.query;
+    const skip = (Number(page) - 1) * Number(limit);
+    const query = { isActive: true };
+
+    if (city) query.clinicCity = { $regex: city, $options: 'i' };
+    if (specialty && specialty !== 'all') query.specialty = specialty;
+    if (search) {
+      const safe = String(search).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      query.$or = [
+        { name: { $regex: safe, $options: 'i' } },
+        { clinicName: { $regex: safe, $options: 'i' } },
+        { qualification: { $regex: safe, $options: 'i' } }
+      ];
+    }
+
+    const doctors = await User.find(query)
+      .select('name specialty qualification clinicName clinicCity clinicAddress consultationFee workingHours experience clinicLogo')
+      .skip(skip)
+      .limit(Number(limit));
+
+    const total = await User.countDocuments(query);
+
+    // Attach ratings to each doctor
+    const Review = require('../models/Review');
+    const doctorsWithRatings = await Promise.all(
+      doctors.map(async (doc) => {
+        const ratingData = await Review.getAverageRating(doc._id);
+        return {
+          ...doc.toObject(),
+          avgRating: ratingData.avgRating,
+          totalReviews: ratingData.totalReviews
+        };
+      })
+    );
+
+    // Sort by rating if requested
+    if (sort === 'rating') {
+      doctorsWithRatings.sort((a, b) => b.avgRating - a.avgRating);
+    } else if (sort === 'fee-low') {
+      doctorsWithRatings.sort((a, b) => (a.consultationFee || 0) - (b.consultationFee || 0));
+    } else if (sort === 'fee-high') {
+      doctorsWithRatings.sort((a, b) => (b.consultationFee || 0) - (a.consultationFee || 0));
+    } else if (sort === 'experience') {
+      doctorsWithRatings.sort((a, b) => (b.experience || 0) - (a.experience || 0));
+    }
+
+    res.json({
+      doctors: doctorsWithRatings,
+      total,
+      page: Number(page),
+      limit: Number(limit),
+      totalPages: Math.ceil(total / Number(limit))
+    });
+  })
+);
+
+// Doctor replies to a review (auth required)
+router.post(
+  '/review/:reviewId/reply',
+  asyncHandler(async (req, res) => {
+    // Simple auth check via header
+    const jwt = require('jsonwebtoken');
+    const token = (req.header('Authorization') || '').replace(/^Bearer\s+/i, '').trim();
+    if (!token) return res.status(401).json({ message: 'Auth required to reply' });
+
+    const secret = process.env.JWT_SECRET || 'demo-fallback-secret-key-32chars!!';
+    let decoded;
+    try { decoded = jwt.verify(token, secret); } catch { return res.status(401).json({ message: 'Invalid token' }); }
+
+    const Review = require('../models/Review');
+    const review = await Review.findOne({ _id: req.params.reviewId, doctorId: decoded.userId });
+    if (!review) return res.status(404).json({ message: 'Review not found' });
+
+    review.doctorReply = req.body.reply;
+    review.doctorRepliedAt = new Date();
+    await review.save();
+
+    res.json({ message: 'Reply posted', review });
   })
 );
 

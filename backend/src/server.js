@@ -102,6 +102,12 @@ app.use('/api/expenses', require('./routes/expenses'));
 app.use('/api/portal', require('./routes/portal'));
 app.use('/api/uploads', require('./routes/uploads'));
 app.use('/api/ai', require('./routes/ai'));
+app.use('/api/payments', require('./routes/payments'));
+app.use('/api/subscription', require('./routes/subscription'));
+app.use('/api/telemedicine', require('./routes/telemedicine'));
+app.use('/api/otp', require('./routes/otp'));
+app.use('/api/notifications', require('./routes/notifications'));
+app.use('/api/pdf', require('./routes/pdf'));
 
 // Health check (DB-aware)
 app.get('/api/health', (req, res) => {
@@ -133,6 +139,10 @@ cron.schedule('0 8 * * *', async () => {
 
 const PORT = process.env.PORT || 5000;
 const server = app.listen(PORT, () => logger.info(`Doctor Clinic API running on port ${PORT}`));
+
+// Initialize Socket.IO for real-time queue updates
+const { initSocket } = require('./services/socketService');
+initSocket(server);
 
 // Graceful shutdown
 function shutdown(signal) {

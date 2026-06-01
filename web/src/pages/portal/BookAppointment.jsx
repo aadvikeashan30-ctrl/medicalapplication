@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { FiCalendar, FiClock, FiUser, FiCheckCircle, FiMapPin, FiDollarSign, FiArrowLeft, FiAlertTriangle } from 'react-icons/fi';
+import { FiCalendar, FiClock, FiUser, FiCheckCircle, FiMapPin, FiDollarSign, FiArrowLeft, FiAlertTriangle, FiVideo, FiHome } from 'react-icons/fi';
 import { FaHeartbeat, FaStethoscope } from 'react-icons/fa';
+import RazorpayPayment from '../../components/RazorpayPayment';
 import axios from 'axios';
 const api = axios.create({ baseURL: '/api' });
 
@@ -14,7 +15,7 @@ export default function BookAppointment() {
   const [booking, setBooking] = useState(false);
   const [booked, setBooked] = useState(null);
   const [error, setError] = useState(null);
-  const [form, setForm] = useState({ date: new Date().toISOString().slice(0,10), timeSlot: '', patientName: '', patientPhone: '', patientEmail: '', patientAge: '', patientGender: '', type: 'consultation', symptoms: '' });
+  const [form, setForm] = useState({ date: new Date().toISOString().slice(0,10), timeSlot: '', patientName: '', patientPhone: '', patientEmail: '', patientAge: '', patientGender: '', type: 'consultation', symptoms: '', consultationMode: 'in-person' });
 
   useEffect(() => { if (!doctorId) { setLoading(false); return; } api.get(`/portal/doctor/${doctorId}`).then(({data})=>setDoctor(data)).catch(()=>setError('Doctor not found')).finally(()=>setLoading(false)); }, [doctorId]);
   useEffect(() => { if (!doctorId||!form.date) return; api.get(`/portal/doctor/${doctorId}/slots?date=${form.date}`).then(({data})=>setSlots(data.slots||[])).catch(()=>setSlots([])); }, [doctorId, form.date]);
@@ -22,7 +23,21 @@ export default function BookAppointment() {
   const handleBook = async () => {
     if (!form.patientName||!form.patientPhone||!form.timeSlot) { setError('Fill all required fields'); return; }
     setBooking(true); setError(null);
-    try { const {data}=await api.post('/portal/book',{doctorId,...form}); setBooked(data); setStep(3); } catch(err){ setError(err.response?.data?.message||'Booking failed'); } finally { setBooking(false); }
+    try {
+      const {data}=await api.post('/portal/book',{doctorId,...form, consultationMode: form.consultationMode});
+      setBooked(data);
+      // Go to payment step instead of confirmation directly
+      setStep(3);
+    } catch(err){ setError(err.response?.data?.message||'Booking failed'); } finally { setBooking(false); }
+  };
+
+  const handlePaymentSuccess = (paymentData) => {
+    setBooked(prev => ({ ...prev, paymentData }));
+    setStep(4);
+  };
+
+  const handleSkipPayment = () => {
+    setStep(4);
   };
 
   if (loading) return <div className="min-h-screen flex items-center justify-center"><FiClock className="text-3xl text-blue-500 animate-pulse"/></div>;
@@ -37,18 +52,50 @@ export default function BookAppointment() {
         </div>
       </header>
       <div className="max-w-4xl mx-auto px-6 py-8">
-        {step===3 && booked && (
+        {/* Step 4: Confirmation */}
+        {step===4 && booked && (
           <div className="text-center py-12 animate-fade-in">
             <div className="w-20 h-20 mx-auto mb-6 bg-emerald-100 rounded-full flex items-center justify-center"><FiCheckCircle className="text-emerald-600 text-4xl"/></div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Appointment Booked!</h2>
-            <p className="text-gray-500 mb-6">Your appointment is confirmed.</p>
+            <p className="text-gray-500 mb-6">Your appointment is confirmed.{booked.paymentData ? ' Payment received.' : ' Pay at clinic.'}</p>
             <div className="card max-w-sm mx-auto text-left space-y-2 text-sm">
               <div className="flex justify-between"><span className="text-gray-500">Token</span><span className="font-bold text-blue-600">#{booked.appointment?.tokenNumber}</span></div>
               <div className="flex justify-between"><span className="text-gray-500">Date</span><span className="font-medium">{new Date(booked.appointment?.date).toLocaleDateString('en-IN')}</span></div>
               <div className="flex justify-between"><span className="text-gray-500">Time</span><span className="font-medium">{booked.appointment?.timeSlot}</span></div>
+              <div className="flex justify-between"><span className="text-gray-500">Mode</span><span className="font-medium capitalize">{form.consultationMode === 'video' ? '📹 Video Call' : '🏥 In-Person'}</span></div>
               <div className="flex justify-between"><span className="text-gray-500">Patient ID</span><span className="font-mono text-xs">{booked.patient?.patientId}</span></div>
+              {booked.paymentData && <div className="flex justify-between"><span className="text-gray-500">Payment</span><span className="text-emerald-600 font-medium">✓ Paid Online</span></div>}
             </div>
-            <p className="text-xs text-gray-400 mt-6">Arrive 10 min early. Doctor: Dr. {doctor?.name}</p>
+            {form.consultationMode === 'video' && (
+              <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl max-w-sm mx-auto">
+                <p className="text-sm text-blue-700 dark:text-blue-300 flex items-center gap-2 justify-center">
+                  <FiVideo /> Video link will be sent to your phone before appointment
+                </p>
+              </div>
+            )}
+            <p className="text-xs text-gray-400 mt-6">{form.consultationMode === 'in-person' ? 'Arrive 10 min early.' : 'Join link sent via WhatsApp.'} Doctor: Dr. {doctor?.name}</p>
+            <Link to={`/track/${booked.appointment?.id}`} className="inline-block mt-4 btn-primary text-sm">Track Appointment</Link>
+          </div>
+        )}
+
+        {/* Step 3: Payment */}
+        {step===3 && booked && (
+          <div className="animate-fade-in max-w-md mx-auto">
+            <div className="text-center mb-6">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white">Complete Payment</h3>
+              <p className="text-sm text-gray-500 mt-1">Secure online payment for your consultation</p>
+            </div>
+            <RazorpayPayment
+              amount={doctor?.consultationFee || 500}
+              doctorId={doctorId}
+              doctorName={doctor?.name}
+              appointmentId={booked.appointment?.id}
+              patientName={form.patientName}
+              patientPhone={form.patientPhone}
+              patientEmail={form.patientEmail}
+              onSuccess={handlePaymentSuccess}
+              onSkip={handleSkipPayment}
+            />
           </div>
         )}
         {step===1 && (
@@ -63,6 +110,18 @@ export default function BookAppointment() {
                 )}
               </div>
               <div><label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">Visit Type</label><select value={form.type} onChange={(e)=>setForm({...form,type:e.target.value})} className="input-field"><option value="consultation">Consultation</option><option value="follow-up">Follow-up</option><option value="emergency">Emergency</option><option value="checkup">Health Checkup</option></select></div>
+              <div><label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">Consultation Mode</label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button type="button" onClick={()=>setForm({...form,consultationMode:'in-person'})} className={`p-3 rounded-xl border-2 text-center transition-all ${form.consultationMode==='in-person'?'border-blue-500 bg-blue-50 dark:bg-blue-900/20':'border-gray-200 dark:border-gray-700 hover:border-blue-200'}`}>
+                    <FiHome className={`mx-auto text-xl mb-1 ${form.consultationMode==='in-person'?'text-blue-600':'text-gray-400'}`}/>
+                    <span className={`text-sm font-medium ${form.consultationMode==='in-person'?'text-blue-700 dark:text-blue-300':'text-gray-600 dark:text-gray-400'}`}>In-Person</span>
+                  </button>
+                  <button type="button" onClick={()=>setForm({...form,consultationMode:'video'})} className={`p-3 rounded-xl border-2 text-center transition-all ${form.consultationMode==='video'?'border-violet-500 bg-violet-50 dark:bg-violet-900/20':'border-gray-200 dark:border-gray-700 hover:border-violet-200'}`}>
+                    <FiVideo className={`mx-auto text-xl mb-1 ${form.consultationMode==='video'?'text-violet-600':'text-gray-400'}`}/>
+                    <span className={`text-sm font-medium ${form.consultationMode==='video'?'text-violet-700 dark:text-violet-300':'text-gray-600 dark:text-gray-400'}`}>Video Call</span>
+                  </button>
+                </div>
+              </div>
               <button onClick={()=>setStep(2)} disabled={!form.timeSlot} className="btn-primary w-full py-3">Continue →</button>
             </div>
           </div>

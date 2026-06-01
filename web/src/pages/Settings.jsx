@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   FiUser, FiSave, FiClock, FiLock, FiShield, FiBell,
-  FiGlobe, FiCheckCircle, FiAlertCircle, FiChevronRight
+  FiGlobe, FiCheckCircle, FiAlertCircle, FiChevronRight, FiZap, FiTrendingUp
 } from 'react-icons/fi';
 import { FaWhatsapp, FaStethoscope, FaHospital } from 'react-icons/fa';
 import toast from 'react-hot-toast';
@@ -11,6 +11,194 @@ import { setSession, getUser } from '../utils/auth';
 import Loader from '../components/Loader';
 import ThreeDCard from '../components/ThreeDCard';
 import FloatingOrb from '../components/FloatingOrb';
+
+// Inline Subscription Manager component
+function SubscriptionManager({ currentPlan, planExpiry }) {
+  const { data: subData, loading: subLoading } = useApi('/subscription/current');
+  const [upgrading, setUpgrading] = useState(false);
+  const [selectedCycle, setSelectedCycle] = useState('monthly');
+
+  const plans = [
+    { id: 'basic', name: 'Basic', price: { monthly: 499, quarterly: 1299, half: 2499, yearly: 4499 }, color: 'blue', gradient: 'from-blue-500 to-indigo-600', features: ['500 patients/mo', '500 appointments/mo', 'Digital Prescriptions', 'Billing & Invoicing', 'Patient Portal', 'Reports & Analytics'] },
+    { id: 'pro', name: 'Pro', price: { monthly: 1499, quarterly: 3999, half: 7499, yearly: 13499 }, color: 'violet', gradient: 'from-violet-500 to-purple-600', popular: true, features: ['Unlimited everything', 'AI Clinical Assistant (GPT-4)', 'WhatsApp Reminders', 'Video Consultation', 'Voice-to-SOAP Notes', 'Multi-staff (5 users)'] },
+    { id: 'enterprise', name: 'Enterprise', price: { monthly: 4999, quarterly: 13499, half: 24999, yearly: 44999 }, color: 'emerald', gradient: 'from-emerald-500 to-teal-600', features: ['Everything in Pro', 'Unlimited staff', 'Multi-branch support', 'White-label branding', 'API access', 'Dedicated support'] }
+  ];
+
+  const cycles = [
+    { value: 'monthly', label: 'Monthly' },
+    { value: 'quarterly', label: '3 Months', save: '13%' },
+    { value: 'yearly', label: 'Annual', save: '25%' }
+  ];
+
+  const handleUpgrade = async (planId) => {
+    setUpgrading(true);
+    try {
+      const { data } = await api.post('/subscription/upgrade', { plan: planId, cycle: selectedCycle });
+      if (data.demo || data.success) {
+        toast.success(data.message || `Upgraded to ${planId.toUpperCase()}!`);
+        // Refresh page to reflect new plan
+        window.location.reload();
+      } else if (data.orderId) {
+        // Razorpay checkout for subscription
+        const script = document.createElement('script');
+        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+        script.onload = () => {
+          const rzp = new window.Razorpay({
+            key: data.keyId,
+            amount: data.amount,
+            currency: data.currency,
+            name: 'DocClinic Pro',
+            description: `${planId.toUpperCase()} Plan - ${selectedCycle}`,
+            order_id: data.orderId,
+            theme: { color: '#4f46e5' },
+            handler: async (response) => {
+              try {
+                await api.post('/subscription/activate', {
+                  ...response,
+                  plan: planId,
+                  cycle: selectedCycle
+                });
+                toast.success(`Upgraded to ${planId.toUpperCase()}!`);
+                window.location.reload();
+              } catch (err) {
+                toast.error('Activation failed. Contact support.');
+              }
+            }
+          });
+          rzp.open();
+        };
+        document.body.appendChild(script);
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Upgrade failed');
+    } finally {
+      setUpgrading(false);
+    }
+  };
+
+  const hierarchy = ['free', 'basic', 'pro', 'enterprise'];
+  const currentLevel = hierarchy.indexOf(currentPlan || 'free');
+
+  return (
+    <div className="space-y-6 animate-fade-in">
+      {/* Current Plan Usage */}
+      {subData && (
+        <div className="card">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2 mb-4">
+            <FiTrendingUp className="text-blue-600" /> Current Usage
+          </h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {Object.entries(subData.usage || {}).map(([key, val]) => (
+              <div key={key} className="p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                <p className="text-xs text-gray-500 capitalize">{key}</p>
+                <p className="text-lg font-bold text-gray-900 dark:text-white">
+                  {val.used}{val.limit !== -1 ? `/${val.limit}` : ''}
+                </p>
+                {val.limit !== -1 && (
+                  <div className="mt-1 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all ${val.used / val.limit > 0.8 ? 'bg-red-500' : 'bg-blue-500'}`}
+                      style={{ width: `${Math.min(100, (val.used / val.limit) * 100)}%` }}
+                    />
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+          {subData.daysRemaining !== null && (
+            <p className="text-sm text-gray-500 mt-3">
+              {subData.isExpired
+                ? '⚠️ Your plan has expired. Please renew.'
+                : `${subData.daysRemaining} days remaining in your billing period`}
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Billing Cycle Toggle */}
+      <div className="flex justify-center">
+        <div className="inline-flex bg-gray-100 dark:bg-gray-800 rounded-xl p-1 gap-1">
+          {cycles.map(c => (
+            <button
+              key={c.value}
+              onClick={() => setSelectedCycle(c.value)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                selectedCycle === c.value
+                  ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-md'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              {c.label}
+              {c.save && <span className="ml-1 text-emerald-600 text-xs font-bold">-{c.save}</span>}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Plan Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        {plans.map(plan => {
+          const planLevel = hierarchy.indexOf(plan.id);
+          const isCurrent = plan.id === currentPlan;
+          const isDowngrade = planLevel < currentLevel;
+
+          return (
+            <div key={plan.id} className={`relative rounded-2xl border-2 p-6 transition-all ${
+              plan.popular ? 'border-violet-400 shadow-lg' : isCurrent ? 'border-blue-400 bg-blue-50/30 dark:bg-blue-900/10' : 'border-gray-200 dark:border-gray-700'
+            }`}>
+              {plan.popular && !isCurrent && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                  <span className="bg-gradient-to-r from-violet-600 to-purple-600 text-white text-[10px] font-bold px-3 py-1 rounded-full">RECOMMENDED</span>
+                </div>
+              )}
+              {isCurrent && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                  <span className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-[10px] font-bold px-3 py-1 rounded-full">CURRENT PLAN</span>
+                </div>
+              )}
+              <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${plan.gradient} flex items-center justify-center shadow-lg mb-3`}>
+                <FiZap className="text-white" />
+              </div>
+              <h4 className="text-lg font-bold text-gray-900 dark:text-white">{plan.name}</h4>
+              <div className="mt-2 mb-4">
+                <span className="text-3xl font-bold text-gray-900 dark:text-white">₹{plan.price[selectedCycle].toLocaleString('en-IN')}</span>
+                <span className="text-gray-500 text-sm">/{selectedCycle === 'monthly' ? 'mo' : selectedCycle === 'quarterly' ? '3mo' : 'yr'}</span>
+              </div>
+              <ul className="space-y-2 mb-5">
+                {plan.features.map((f, i) => (
+                  <li key={i} className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                    <FiCheckCircle className="text-emerald-500 flex-shrink-0 text-xs" /> {f}
+                  </li>
+                ))}
+              </ul>
+              {isCurrent ? (
+                <button disabled className="w-full py-2.5 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-500 font-medium text-sm cursor-not-allowed">
+                  Current Plan
+                </button>
+              ) : isDowngrade ? (
+                <button disabled className="w-full py-2.5 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-400 font-medium text-sm cursor-not-allowed">
+                  Downgrade
+                </button>
+              ) : (
+                <button
+                  onClick={() => handleUpgrade(plan.id)}
+                  disabled={upgrading}
+                  className={`w-full py-2.5 rounded-xl font-semibold text-sm text-white transition-all ${
+                    plan.popular
+                      ? 'bg-gradient-to-r from-violet-600 to-purple-600 hover:shadow-lg hover:shadow-violet-500/25'
+                      : 'bg-gray-900 dark:bg-gray-700 hover:bg-gray-800'
+                  }`}
+                >
+                  {upgrading ? 'Processing...' : 'Upgrade Now'}
+                </button>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 export default function Settings() {
   const { data: profile, loading, error } = useApi('/auth/profile');
@@ -137,6 +325,7 @@ export default function Settings() {
     { id: 'profile', label: 'Doctor Profile', icon: FiUser, color: 'blue' },
     { id: 'clinic', label: 'Clinic Details', icon: FaHospital, color: 'emerald' },
     { id: 'hours', label: 'Working Hours', icon: FiClock, color: 'purple' },
+    { id: 'subscription', label: 'Subscription', icon: FiZap, color: 'violet' },
     { id: 'integrations', label: 'Integrations', icon: FiGlobe, color: 'orange' },
     { id: 'security', label: 'Security', icon: FiShield, color: 'red' }
   ];
@@ -168,13 +357,15 @@ export default function Settings() {
                 <p className="text-sm text-gray-500">
                   {profile?.planExpiry
                     ? `Valid until ${new Date(profile.planExpiry).toLocaleDateString('en-IN')}`
-                    : 'Unlimited access'}
+                    : '30-day free trial'}
                 </p>
               </div>
             </div>
-            <button className="btn-primary !py-2 text-sm">
-              Upgrade to Pro — ₹1,499/mo
-            </button>
+            {(profile?.plan || 'free') !== 'enterprise' && (
+              <button onClick={() => setActiveSection('subscription')} className="btn-primary !py-2 text-sm flex items-center gap-1">
+                <FiZap /> Upgrade Plan
+              </button>
+            )}
           </div>
         </div>
       </ThreeDCard>
@@ -405,6 +596,11 @@ export default function Settings() {
           </button>
         )}
       </form>
+
+      {/* Subscription Section */}
+      {activeSection === 'subscription' && (
+        <SubscriptionManager currentPlan={profile?.plan || 'free'} planExpiry={profile?.planExpiry} />
+      )}
 
       {/* Security Section */}
       {activeSection === 'security' && (
