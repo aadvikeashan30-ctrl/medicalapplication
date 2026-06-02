@@ -128,7 +128,7 @@ export default function Reports() {
       labels: monthly.map(m => m.month || m._id || ''),
       datasets: [{
         label: 'New Patients',
-        data: monthly.map(m => m.patients || m.newPatients || Math.floor(Math.random() * 20 + 5)),
+        data: monthly.map(m => m.patients || m.newPatients || m.count || 0),
         backgroundColor: 'rgba(16, 185, 129, 0.7)',
         borderColor: 'rgba(16, 185, 129, 1)',
         borderWidth: 1,
@@ -229,11 +229,16 @@ export default function Reports() {
   if (statsLoading || analyticsLoading) return <Loader label="Loading reports..." />;
 
   return (
-    <div className="animate-fade-in space-y-6">
+    <div className="page-enter space-y-6">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Reports & Analytics</h1>
+        <div className="animate-fade-up">
+          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center glow-indigo">
+              <FiBarChart2 className="text-white text-lg" />
+            </div>
+            Reports & Analytics
+          </h1>
           <p className="text-sm text-gray-500 mt-1">Comprehensive insights into your clinic performance</p>
         </div>
         <div className="flex items-center gap-3">

@@ -136,11 +136,16 @@ export default function LabTests() {
   };
 
   return (
-    <div className="animate-fade-in space-y-6">
+    <div className="page-enter space-y-6">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Lab Tests</h1>
+        <div className="animate-fade-up">
+          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center glow-pink">
+              <FiActivity className="text-white text-lg" />
+            </div>
+            Lab Tests
+          </h1>
           <p className="text-sm text-gray-500 mt-1">Order, track, and manage patient lab investigations</p>
         </div>
         <button onClick={openAdd} className="btn-primary flex items-center gap-2">

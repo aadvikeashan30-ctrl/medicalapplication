@@ -119,11 +119,16 @@ export default function Prescriptions() {
   const { data: templateData } = useApi('/prescriptions?isTemplate=true&limit=20');
 
   return (
-    <div className="animate-fade-in space-y-6">
+    <div className="page-enter space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Prescriptions</h1>
-          <p className="text-gray-500 mt-1">Create and manage digital prescriptions</p>
+        <div className="animate-fade-up">
+          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 flex items-center justify-center glow-cyan">
+              <FiFileText className="text-white text-lg" />
+            </div>
+            Prescriptions
+          </h1>
+          <p className="text-gray-500 mt-1 ml-[52px]">Create and manage digital prescriptions</p>
         </div>
         <button onClick={() => setShowAddModal(true)} className="btn-primary flex items-center gap-2">
           <FiPlus /> New Prescription

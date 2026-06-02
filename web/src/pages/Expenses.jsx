@@ -161,12 +161,17 @@ export default function Expenses() {
   };
 
   return (
-    <div className="animate-fade-in space-y-6">
+    <div className="page-enter space-y-6">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Expenses</h1>
-          <p className="text-sm text-gray-500 mt-1">Track clinic expenses, profit & loss</p>
+        <div className="animate-fade-up">
+          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center glow-amber">
+              <FiDollarSign className="text-white text-lg" />
+            </div>
+            Expenses
+          </h1>
+          <p className="text-sm text-gray-500 mt-1 ml-[52px]">Track clinic expenses, profit & loss</p>
         </div>
         <div className="flex gap-2">
           {expenses.length > 0 && (

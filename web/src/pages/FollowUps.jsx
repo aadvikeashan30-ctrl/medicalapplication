@@ -94,12 +94,17 @@ export default function FollowUps() {
   };
 
   return (
-    <div className="animate-fade-in space-y-6">
+    <div className="page-enter space-y-6">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Follow-up Tracker</h1>
-          <p className="text-sm text-gray-500 mt-1">Never miss a patient follow-up. Automated tracking from prescriptions.</p>
+        <div className="animate-fade-up">
+          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center glow-pink">
+              <FiBell className="text-white text-lg" />
+            </div>
+            Follow-up Tracker
+          </h1>
+          <p className="text-sm text-gray-500 mt-1 ml-[52px]">Never miss a patient follow-up. Auto-tracked from prescriptions.</p>
         </div>
       </div>
 
