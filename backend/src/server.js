@@ -175,6 +175,27 @@ app.use('/api/otp', require('./routes/otp'));
 app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/pdf', require('./routes/pdf'));
 
+// ===== NEW AI-POWERED HEALTHCARE PLATFORM ROUTES =====
+
+// Patient Features
+app.use('/api/health-records', require('./routes/healthRecords'));
+app.use('/api/family', require('./routes/family'));
+app.use('/api/reminders', require('./routes/reminders'));
+app.use('/api/vaccinations', require('./routes/vaccinations'));
+app.use('/api/chatbot', require('./routes/chatbot'));
+
+// Doctor Features (AI-powered)
+app.use('/api/doctor', require('./routes/doctor'));
+
+// Business Features
+app.use('/api/membership', require('./routes/membership'));
+app.use('/api/health-packages', require('./routes/healthPackages'));
+app.use('/api/campaigns', require('./routes/campaigns'));
+app.use('/api/referrals', require('./routes/referrals'));
+
+// Enterprise Features
+app.use('/api/enterprise', require('./routes/enterprise'));
+
 // Health check (DB-aware)
 app.get('/api/health', (req, res) => {
   const dbState = mongoose.connection.readyState;
