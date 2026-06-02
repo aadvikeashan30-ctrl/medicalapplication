@@ -142,7 +142,7 @@ export default function Dashboard() {
 
       {/* Error */}
       {statsError && (
-        <div className="rounded-xl border border-rose-500/20 px-4 py-3 text-sm text-rose-300 flex items-center gap-2" style={{ background: 'rgba(244, 63, 94, 0.06)' }}>
+        <div className="rounded-xl border border-rose-200 px-4 py-3 text-sm text-rose-700 bg-rose-50 flex items-center gap-2">
           <FiAlertCircle /> {statsError}
         </div>
       )}
@@ -171,11 +171,11 @@ export default function Dashboard() {
                   <AnimatedCounter end={c.value} />
                 )}
               </p>
-              <p className="text-sm text-gray-400 mt-1">{c.label}</p>
+              <p className="text-sm text-gray-600 mt-1">{c.label}</p>
 
               {/* Sub info */}
               {c.sub && (
-                <div className="flex items-center gap-1.5 mt-3 text-xs font-medium text-emerald-400">
+                <div className="flex items-center gap-1.5 mt-3 text-xs font-medium text-emerald-600">
                   <FiArrowUp className="text-[10px]" />
                   <span>{c.sub}</span>
                 </div>
@@ -197,7 +197,7 @@ export default function Dashboard() {
                 <span className="badge badge-primary ml-2">{queue.length}</span>
               )}
             </h3>
-            <Link to="/appointments" className="text-sm text-indigo-400 font-medium hover:text-indigo-300 flex items-center gap-1 transition-colors">
+            <Link to="/appointments" className="text-sm text-indigo-600 font-medium hover:text-indigo-700 flex items-center gap-1 transition-colors">
               View All <FiArrowUpRight className="text-xs" />
             </Link>
           </div>
@@ -218,8 +218,8 @@ export default function Dashboard() {
                   key={apt._id}
                   className={`flex items-center justify-between p-3.5 rounded-xl border transition-all duration-300 group animate-slide-in ${
                     apt.status === 'in-progress'
-                      ? 'border-cyan-500/30 bg-cyan-500/5'
-                      : 'border-white/5 hover:border-indigo-500/20 hover:bg-white/[0.02]'
+                      ? 'border-cyan-200 bg-cyan-50'
+                      : 'border-gray-100 hover:border-indigo-200 hover:bg-gray-50'
                   }`}
                   style={{ animationDelay: `${idx * 60}ms` }}
                 >
@@ -227,10 +227,10 @@ export default function Dashboard() {
                     {/* Token */}
                     <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-xs font-bold ${
                       apt.status === 'completed'
-                        ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                        ? 'bg-emerald-50 text-emerald-600 border border-emerald-200'
                         : apt.status === 'in-progress'
-                        ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'
-                        : 'bg-white/5 text-gray-400 border border-white/10'
+                        ? 'bg-cyan-50 text-cyan-600 border border-cyan-200'
+                        : 'bg-gray-50 text-gray-600 border border-gray-200'
                     }`}>
                       {apt.status === 'completed' ? <FiCheckCircle /> : `#${apt.tokenNumber}`}
                     </div>
@@ -246,7 +246,7 @@ export default function Dashboard() {
                     {apt.status === 'scheduled' && (
                       <button
                         onClick={() => startAppt(apt._id)}
-                        className="opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-center gap-1 text-xs font-medium text-indigo-400 hover:text-white bg-indigo-500/10 hover:bg-indigo-500/20 px-2.5 py-1.5 rounded-lg border border-indigo-500/20"
+                        className="opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-center gap-1 text-xs font-medium text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 px-2.5 py-1.5 rounded-lg border border-indigo-200"
                       >
                         <FiPlay className="text-[10px]" /> Call In
                       </button>
@@ -254,7 +254,7 @@ export default function Dashboard() {
                     {apt.status === 'in-progress' && (
                       <button
                         onClick={() => completeAppt(apt._id)}
-                        className="opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-center gap-1 text-xs font-medium text-emerald-400 hover:text-white bg-emerald-500/10 hover:bg-emerald-500/20 px-2.5 py-1.5 rounded-lg border border-emerald-500/20"
+                        className="opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-center gap-1 text-xs font-medium text-emerald-600 hover:text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-2.5 py-1.5 rounded-lg border border-emerald-200"
                       >
                         <FiCheck className="text-[10px]" /> Done
                       </button>
