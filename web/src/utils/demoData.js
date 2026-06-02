@@ -176,6 +176,15 @@ export function getDemoResponse(url) {
     if (noSlash.startsWith(cleanKey) || cleanKey.startsWith(noSlash)) return value;
   }
 
+  // Single patient view (e.g., /patients/pat-1)
+  if (cleanPath.match(/\/patients\/pat-\d+/) || cleanPath.match(/\/patients\/[a-f0-9]/)) {
+    const patients = DEMO_RESPONSES['/patients']?.patients || [];
+    const id = cleanPath.split('/').pop();
+    const found = patients.find(p => p._id === id);
+    if (found) return found;
+    return patients[0] || {};
+  }
+
   // Match common patterns (more specific first)
   if (cleanPath.includes('risk-score') || cleanPath.includes('ai/risk')) return DEMO_RESPONSES['/ai/risk-score'];
   if (cleanPath.includes('ai/diagnose')) return DEMO_RESPONSES['/ai/diagnose'];
