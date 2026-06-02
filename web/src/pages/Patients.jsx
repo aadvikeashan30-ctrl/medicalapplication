@@ -270,28 +270,28 @@ export default function Patients() {
                 <span className="text-sm font-semibold text-emerald-600">
                   ₹{Number(p.totalBilled || 0).toLocaleString('en-IN')}
                 </span>
-                <div className="flex gap-2">
+                <div className="flex gap-1.5">
                   <Link
                     to={`/patients/${p._id}`}
-                    className="text-xs bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg hover:bg-blue-100 flex items-center gap-1"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 shadow-sm transition-all hover:shadow-md active:scale-95"
                   >
-                    <FiExternalLink className="text-[10px]" /> View
+                    <FiExternalLink className="text-xs" /> View
                   </Link>
                   <button
                     onClick={() => setRiskPatient(riskPatient?._id === p._id ? null : p)}
-                    className={`text-xs px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors ${
+                    className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg shadow-sm transition-all hover:shadow-md active:scale-95 ${
                       riskPatient?._id === p._id
-                        ? 'bg-violet-100 text-violet-700'
-                        : 'bg-violet-50 text-violet-600 hover:bg-violet-100'
+                        ? 'bg-violet-600 text-white'
+                        : 'bg-violet-500 text-white hover:bg-violet-600'
                     }`}
                   >
-                    <FiUser className="text-[10px]" /> AI Risk
+                    <FiUser className="text-xs" /> AI Risk
                   </button>
                   <button
                     onClick={() => setWhatsappPatient(p)}
-                    className="text-xs bg-green-50 text-green-700 px-3 py-1.5 rounded-lg hover:bg-green-100 flex items-center gap-1"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg bg-green-500 text-white hover:bg-green-600 shadow-sm transition-all hover:shadow-md active:scale-95"
                   >
-                    <FaWhatsapp /> Message
+                    <FaWhatsapp className="text-xs" /> Message
                   </button>
                 </div>
               </div>
