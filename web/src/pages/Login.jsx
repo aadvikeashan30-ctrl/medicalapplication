@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FiMail, FiLock, FiEye, FiEyeOff, FiArrowRight, FiShield, FiActivity, FiZap } from 'react-icons/fi';
+import { FiMail, FiLock, FiEye, FiEyeOff, FiArrowRight, FiShield, FiActivity, FiZap, FiUsers, FiCalendar, FiBarChart2 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import api from '../utils/api';
 import { setSession } from '../utils/auth';
@@ -9,19 +9,7 @@ export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const handleMouse = (e) => {
-      setMousePos({
-        x: (e.clientX / window.innerWidth) * 100,
-        y: (e.clientY / window.innerHeight) * 100
-      });
-    };
-    window.addEventListener('mousemove', handleMouse);
-    return () => window.removeEventListener('mousemove', handleMouse);
-  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -55,112 +43,100 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex bg-gray-950 overflow-hidden">
-      {/* Left Panel - Animated Gradient Background */}
-      <div className="hidden lg:flex lg:w-[55%] relative items-center justify-center p-16">
-        {/* Dynamic gradient that follows mouse */}
-        <div
-          className="absolute inset-0 transition-all duration-[2000ms] ease-out"
-          style={{
-            background: `
-              radial-gradient(circle at ${mousePos.x}% ${mousePos.y}%, rgba(99, 102, 241, 0.2) 0%, transparent 50%),
-              radial-gradient(circle at ${100 - mousePos.x}% ${100 - mousePos.y}%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
-              radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.08) 0%, transparent 60%),
-              linear-gradient(135deg, #0a0a12 0%, #1a1a2e 100%)
-            `
-          }}
-        />
-
-        {/* Floating orbs */}
-        <div className="orb orb-indigo w-72 h-72 -top-20 -left-20 animate-orb" />
-        <div className="orb orb-purple w-56 h-56 bottom-20 right-10 animate-orb" style={{ animationDelay: '-4s' }} />
-        <div className="orb orb-cyan w-40 h-40 top-1/3 right-1/4 animate-orb" style={{ animationDelay: '-8s' }} />
+    <div className="min-h-screen flex">
+      {/* ═══════ LEFT PANEL - Dark gradient branding ═══════ */}
+      <div className="hidden lg:flex lg:w-[48%] relative bg-gray-950 items-center justify-center p-14 overflow-hidden">
+        {/* Background orbs */}
+        <div className="orb orb-indigo w-80 h-80 -top-32 -left-20 animate-orb" />
+        <div className="orb orb-purple w-64 h-64 bottom-10 -right-10 animate-orb" style={{ animationDelay: '-5s' }} />
+        <div className="orb orb-cyan w-48 h-48 top-1/2 right-1/4 animate-orb" style={{ animationDelay: '-9s' }} />
 
         {/* Grid pattern */}
         <div className="absolute inset-0 opacity-[0.03]" style={{
           backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)',
-          backgroundSize: '60px 60px'
+          backgroundSize: '48px 48px'
         }} />
 
         {/* Content */}
-        <div className="relative z-10 max-w-lg">
+        <div className="relative z-10 max-w-md animate-fade-up">
           {/* Logo */}
-          <div className="flex items-center gap-3 mb-12">
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center glow-indigo" style={{ background: 'linear-gradient(135deg, #6366f1, #a855f7)' }}>
+          <div className="flex items-center gap-3 mb-14">
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center glow-indigo" style={{ background: 'linear-gradient(135deg, #4f46e5, #7c3aed)' }}>
               <FiActivity className="text-white text-xl" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-white">DocClinic</h1>
-              <p className="text-[11px] text-indigo-300 font-medium tracking-[0.2em] uppercase">Pro Healthcare</p>
+              <h1 className="text-2xl font-bold text-white">DocClinic Pro</h1>
+              <p className="text-[11px] text-indigo-300 font-medium tracking-[0.2em] uppercase">Healthcare Platform</p>
             </div>
           </div>
 
           {/* Headline */}
-          <h2 className="text-4xl lg:text-5xl font-bold text-white leading-[1.15] mb-6">
-            The Future of
-            <br />
-            <span className="gradient-text">Clinic Management</span>
+          <h2 className="text-4xl font-bold text-white leading-tight mb-5">
+            Modern Clinic<br />Management for<br />
+            <span style={{ background: 'linear-gradient(135deg, #818cf8, #c084fc)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              Indian Doctors
+            </span>
           </h2>
-          <p className="text-lg text-gray-400 leading-relaxed mb-12 max-w-md">
-            AI-powered platform trusted by 10,000+ Indian doctors. Manage patients, billing, prescriptions — all in one place.
+          <p className="text-gray-400 text-base leading-relaxed mb-12">
+            AI-powered platform to manage patients, billing, prescriptions, and grow your practice — all in one place.
           </p>
 
           {/* Feature pills */}
-          <div className="flex flex-wrap gap-3">
-            <div className="glass-pill">
-              <FiShield className="text-emerald-400" />
-              <span>Bank-grade Security</span>
+          <div className="flex flex-wrap gap-2.5 mb-12">
+            <div className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-gray-300">
+              <FiShield className="text-emerald-400 text-xs" /> Secure
             </div>
-            <div className="glass-pill">
-              <FiZap className="text-amber-400" />
-              <span>AI Assistant</span>
+            <div className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-gray-300">
+              <FiZap className="text-amber-400 text-xs" /> AI Assistant
             </div>
-            <div className="glass-pill">
-              <FiActivity className="text-cyan-400" />
-              <span>GST Compliant</span>
+            <div className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-gray-300">
+              <FiActivity className="text-cyan-400 text-xs" /> GST Ready
             </div>
           </div>
 
           {/* Stats */}
-          <div className="mt-12 grid grid-cols-3 gap-6 border-t border-white/5 pt-8">
-            <div>
-              <p className="text-2xl font-bold text-white">10K+</p>
-              <p className="text-xs text-gray-500 mt-0.5">Active Doctors</p>
+          <div className="grid grid-cols-3 gap-6 pt-8 border-t border-white/5">
+            <div className="animate-fade-up stagger-1">
+              <FiUsers className="text-indigo-400 mb-2" />
+              <p className="text-xl font-bold text-white">10K+</p>
+              <p className="text-xs text-gray-500">Active Doctors</p>
             </div>
-            <div>
-              <p className="text-2xl font-bold text-white">50L+</p>
-              <p className="text-xs text-gray-500 mt-0.5">Appointments</p>
+            <div className="animate-fade-up stagger-2">
+              <FiCalendar className="text-cyan-400 mb-2" />
+              <p className="text-xl font-bold text-white">50L+</p>
+              <p className="text-xs text-gray-500">Appointments</p>
             </div>
-            <div>
-              <p className="text-2xl font-bold text-white">₹200Cr</p>
-              <p className="text-xs text-gray-500 mt-0.5">Revenue Processed</p>
+            <div className="animate-fade-up stagger-3">
+              <FiBarChart2 className="text-emerald-400 mb-2" />
+              <p className="text-xl font-bold text-white">₹200Cr</p>
+              <p className="text-xs text-gray-500">Processed</p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Right Panel - Login Form */}
-      <div className="flex-1 flex items-center justify-center p-6 lg:p-12 relative">
-        {/* Subtle mesh background */}
-        <div className="absolute inset-0 bg-mesh-gradient opacity-50" />
+      {/* ═══════ RIGHT PANEL - Clean white form ═══════ */}
+      <div className="flex-1 flex items-center justify-center p-6 lg:p-12 bg-white relative">
+        {/* Subtle background */}
+        <div className="absolute inset-0 bg-mesh-light opacity-60" />
 
-        <div className="relative z-10 w-full max-w-md">
+        <div className="relative z-10 w-full max-w-md animate-fade-up">
           {/* Mobile logo */}
           <div className="lg:hidden flex items-center gap-3 mb-10">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #6366f1, #a855f7)' }}>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #4f46e5, #7c3aed)' }}>
               <FiActivity className="text-white" />
             </div>
-            <span className="text-xl font-bold text-white">DocClinic Pro</span>
+            <span className="text-xl font-bold text-gray-900">DocClinic Pro</span>
           </div>
 
-          <h2 className="text-3xl font-bold text-white mb-2">Welcome back</h2>
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome back</h2>
           <p className="text-gray-500 mb-8">Sign in to your clinic dashboard</p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2">Email Address</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
               <div className="relative group">
-                <FiMail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-indigo-400 transition-colors" />
+                <FiMail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-500 transition-colors" />
                 <input
                   type="email"
                   value={form.email}
@@ -173,9 +149,9 @@ export default function Login() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2">Password</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
               <div className="relative group">
-                <FiLock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-indigo-400 transition-colors" />
+                <FiLock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-500 transition-colors" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={form.password}
@@ -187,7 +163,7 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                 >
                   {showPassword ? <FiEyeOff /> : <FiEye />}
                 </button>
@@ -196,15 +172,15 @@ export default function Login() {
 
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" className="w-4 h-4 rounded border-gray-700 bg-gray-800 text-indigo-500 focus:ring-indigo-500/20" />
-                <span className="text-sm text-gray-500">Remember me</span>
+                <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500/20" />
+                <span className="text-sm text-gray-600">Remember me</span>
               </label>
-              <Link to="/forgot-password" className="text-sm text-indigo-400 hover:text-indigo-300 font-medium transition-colors">
+              <Link to="/forgot-password" className="text-sm text-indigo-600 hover:text-indigo-700 font-medium transition-colors">
                 Forgot password?
               </Link>
             </div>
 
-            <button type="submit" disabled={loading} className="btn-primary w-full py-3.5 text-sm">
+            <button type="submit" disabled={loading} className="btn-primary w-full !py-3.5 text-sm">
               {loading ? (
                 <span className="flex items-center gap-2">
                   <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
@@ -222,17 +198,17 @@ export default function Login() {
           </form>
 
           {/* Demo credentials */}
-          <div className="mt-8 p-4 rounded-xl border border-indigo-500/20" style={{ background: 'rgba(99, 102, 241, 0.05)' }}>
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
-              <p className="text-xs font-semibold text-indigo-300 uppercase tracking-wider">Demo Access</p>
+          <div className="mt-8 p-4 rounded-xl bg-indigo-50 border border-indigo-100">
+            <div className="flex items-center gap-2 mb-1.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
+              <p className="text-xs font-semibold text-indigo-700 uppercase tracking-wider">Demo Access</p>
             </div>
-            <p className="text-sm text-gray-400 font-mono">demo@docclinic.com / demo1234</p>
+            <p className="text-sm text-indigo-600 font-mono">demo@docclinic.com / demo1234</p>
           </div>
 
           <p className="text-center mt-8 text-sm text-gray-500">
             New to DocClinic?{' '}
-            <Link to="/register" className="text-indigo-400 font-semibold hover:text-indigo-300 transition-colors">
+            <Link to="/register" className="text-indigo-600 font-semibold hover:text-indigo-700 transition-colors">
               Start Free Trial
             </Link>
           </p>

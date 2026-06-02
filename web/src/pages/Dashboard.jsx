@@ -115,7 +115,7 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 page-enter">
       {/* Welcome Hero */}
       <WelcomeHero greeting={greeting} doctorName={user.name || 'Doctor'} stats={stats} />
 
@@ -155,12 +155,12 @@ export default function Dashboard() {
           {statCards.map((c, idx) => (
             <div
               key={c.label}
-              className="stat-card animate-fade-up"
-              style={{ animationDelay: `${(idx + 1) * 100}ms`, '--card-glow': `var(${c.glow})` }}
+              className="stat-card border-gradient-animated animate-fade-up"
+              style={{ animationDelay: `${(idx + 1) * 100}ms` }}
             >
-              {/* Gradient icon */}
-              <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${c.gradient} flex items-center justify-center ${c.iconGlow} mb-4`}>
-                <c.icon className="text-white text-lg" />
+              {/* Gradient icon with glow */}
+              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${c.gradient} flex items-center justify-center ${c.iconGlow} mb-4 transition-transform duration-300 group-hover:scale-110`}>
+                <c.icon className="text-white text-xl" />
               </div>
 
               {/* Value */}
