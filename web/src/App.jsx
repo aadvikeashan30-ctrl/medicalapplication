@@ -19,6 +19,23 @@ import PatientPortal from './pages/PatientPortal';
 import Settings from './pages/Settings';
 import DoctorProfile from './pages/DoctorProfile';
 import NotFound from './pages/NotFound';
+// New AI-powered healthcare pages
+import HealthRecords from './pages/HealthRecords';
+import FamilyAccounts from './pages/FamilyAccounts';
+import MedicineReminders from './pages/MedicineReminders';
+import Vaccinations from './pages/Vaccinations';
+import AIHealthAssistant from './pages/AIHealthAssistant';
+import AILabAnalyzer from './pages/AILabAnalyzer';
+import VoicePrescription from './pages/VoicePrescription';
+import ClinicalDecisionSupport from './pages/ClinicalDecisionSupport';
+import EMRTemplates from './pages/EMRTemplates';
+import ESignaturePage from './pages/ESignature';
+import Memberships from './pages/Memberships';
+import HealthPackages from './pages/HealthPackages';
+import Campaigns from './pages/Campaigns';
+import Referrals from './pages/Referrals';
+import AuditLogs from './pages/AuditLogs';
+import BranchManagement from './pages/BranchManagement';
 import Layout from './components/Layout';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { AuthProvider } from './context/AuthContext';
@@ -102,6 +119,23 @@ export default function App() {
           <Route path="patient-portal" element={<PatientPortal />} />
           <Route path="profile" element={<DoctorProfile />} />
           <Route path="settings" element={<Settings />} />
+          {/* New AI Healthcare Platform Routes */}
+          <Route path="health-records" element={<HealthRecords />} />
+          <Route path="family-accounts" element={<FamilyAccounts />} />
+          <Route path="medicine-reminders" element={<MedicineReminders />} />
+          <Route path="vaccinations" element={<Vaccinations />} />
+          <Route path="ai-assistant" element={<AIHealthAssistant />} />
+          <Route path="ai-lab-analyzer" element={<AILabAnalyzer />} />
+          <Route path="voice-prescription" element={<VoicePrescription />} />
+          <Route path="clinical-support" element={<ClinicalDecisionSupport />} />
+          <Route path="emr-templates" element={<EMRTemplates />} />
+          <Route path="e-signature" element={<ESignaturePage />} />
+          <Route path="memberships" element={<Memberships />} />
+          <Route path="health-packages" element={<HealthPackages />} />
+          <Route path="campaigns" element={<Campaigns />} />
+          <Route path="referrals" element={<Referrals />} />
+          <Route path="audit-logs" element={<AuditLogs />} />
+          <Route path="branches" element={<BranchManagement />} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>

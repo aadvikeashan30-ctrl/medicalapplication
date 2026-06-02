@@ -143,4 +143,216 @@ async function summarizeNotes({ text, type }) {
   try { return JSON.parse(result); } catch { return { raw: result }; }
 }
 
-module.exports = { chat, getProvider, suggestDiagnosis, suggestPrescription, assessPatientRisk, optimizeSchedule, summarizeNotes };
+// ========== NEW AI FEATURES ==========
+
+/**
+ * Health Assistant Chatbot - conversational AI for patients
+ */
+async function healthAssistantChat(message, conversationHistory = [], contextType = 'general') {
+  const systemPrompts = {
+    general: 'You are a friendly AI health assistant for patients. Provide general health information, wellness tips, and help patients understand their health better. Always add a disclaimer that your advice does not replace professional medical consultation. Be empathetic and clear.',
+    'symptom-check': 'You are an AI symptom checker. Ask clarifying questions about symptoms, suggest possible conditions (without diagnosing), and recommend when to see a doctor. Always err on the side of caution.',
+    'medication-query': 'You are a medication information AI. Help patients understand their prescribed medications, side effects, interactions, and proper usage. Always advise consulting their doctor before making any changes.',
+    'lab-interpretation': 'You are a lab report explanation AI. Help patients understand their lab results in simple terms. Explain which values are normal and which need attention, without making diagnoses.',
+    'diet-advice': 'You are a nutrition and wellness AI. Provide general dietary advice based on health conditions. Recommend consulting a nutritionist for personalized plans.',
+    'follow-up': 'You are a follow-up care AI. Help patients understand their post-visit care instructions, when to schedule follow-ups, and what symptoms to watch for.'
+  };
+
+  const systemMsg = { role: 'system', content: systemPrompts[contextType] || systemPrompts.general };
+  const messages = [systemMsg, ...conversationHistory, { role: 'user', content: message }];
+
+  const response = await chat(messages, { temperature: 0.5, maxTokens: 800 });
+  return {
+    content: response,
+    disclaimer: 'This AI assistant provides general health information only. It is not a substitute for professional medical advice, diagnosis, or treatment.'
+  };
+}
+
+/**
+ * AI Lab Report Analyzer
+ */
+async function analyzeLabReport(reportData, reportType = 'general') {
+  const systemMsg = {
+    role: 'system',
+    content: `You are a lab report analysis AI for healthcare professionals. Analyze the lab report and provide:
+1. Summary of findings
+2. Abnormal values with clinical significance
+3. Normal values confirmation
+4. Recommendations for follow-up tests
+5. Possible conditions to investigate
+
+Respond in JSON format:
+{
+  "summary": "",
+  "findings": [{ "parameter": "", "value": "", "normalRange": "", "status": "normal|high|low|critical", "significance": "" }],
+  "abnormalValues": [{ "parameter": "", "value": "", "interpretation": "" }],
+  "normalValues": [{ "parameter": "", "value": "" }],
+  "recommendations": [],
+  "possibleConditions": [],
+  "urgency": "routine|follow-up|urgent|immediate"
+}`
+  };
+
+  const userMsg = { role: 'user', content: `Report type: ${reportType}. Data: ${JSON.stringify(reportData)}` };
+  const result = await chat([systemMsg, userMsg], { json: true, temperature: 0.2 });
+  try { return JSON.parse(result); } catch { return { summary: result, findings: [], recommendations: ['Please consult your doctor.'] }; }
+}
+
+/**
+ * Drug Interaction Checker (AI-enhanced)
+ */
+async function checkDrugInteractions(drugNames) {
+  const systemMsg = {
+    role: 'system',
+    content: `You are a clinical pharmacology AI. Check for drug interactions between the given medications. For each interaction found, provide severity, description, and management advice.
+
+Respond in JSON format:
+{
+  "interactions": [{ "drug1": "", "drug2": "", "severity": "minor|moderate|major|contraindicated", "description": "", "mechanism": "", "clinicalEffect": "", "management": "" }],
+  "safeConfirmation": ""
+}`
+  };
+
+  const userMsg = { role: 'user', content: `Check interactions between: ${drugNames.join(', ')}` };
+  const result = await chat([systemMsg, userMsg], { json: true, temperature: 0.1 });
+  try {
+    const parsed = JSON.parse(result);
+    return parsed.interactions || [];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Allergy Interaction Checker (AI-enhanced)
+ */
+async function checkAllergyInteractions(allergies, medicines) {
+  const systemMsg = {
+    role: 'system',
+    content: `You are a clinical pharmacology AI specialized in allergy detection. Given a patient's known allergies and prescribed medications, identify any potential allergic reactions or cross-reactivity.
+
+Respond in JSON format:
+{
+  "alerts": [{ "medicine": "", "allergy": "", "severity": "low|moderate|high|critical", "mechanism": "", "message": "", "alternatives": [] }]
+}`
+  };
+
+  const medNames = medicines.map((m) => (typeof m === 'string' ? m : m.name));
+  const userMsg = { role: 'user', content: `Patient allergies: ${allergies.join(', ')}. Prescribed medicines: ${medNames.join(', ')}` };
+  const result = await chat([systemMsg, userMsg], { json: true, temperature: 0.1 });
+  try {
+    const parsed = JSON.parse(result);
+    return parsed.alerts || [];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Clinical Decision Support
+ */
+async function clinicalDecisionSupport({ symptoms, diagnosis, patientAge, patientGender, medicalHistory }) {
+  const systemMsg = {
+    role: 'system',
+    content: `You are a clinical decision support AI. Based on patient symptoms and clinical data, provide evidence-based suggestions for diagnosis, investigations, and treatment.
+
+Respond in JSON format:
+{
+  "suggestedDiagnoses": [{ "condition": "", "probability": "high|medium|low", "icd10": "", "reasoning": "" }],
+  "recommendedTests": [{ "test": "", "urgency": "routine|urgent", "reason": "" }],
+  "treatmentOptions": [{ "option": "", "firstLine": true, "details": "" }],
+  "redFlags": [],
+  "followUpAdvice": "",
+  "disclaimer": "AI suggestions are for reference only. Clinical judgment should always take precedence."
+}`
+  };
+
+  const userMsg = {
+    role: 'user',
+    content: `Patient: ${patientAge || '?'}y ${patientGender || '?'}. Symptoms: ${symptoms || 'Not specified'}. Working diagnosis: ${diagnosis || 'Undetermined'}. Medical history: ${medicalHistory || 'None reported'}.`
+  };
+
+  const result = await chat([systemMsg, userMsg], { json: true, temperature: 0.2 });
+  try { return JSON.parse(result); } catch {
+    return {
+      suggestedDiagnoses: [],
+      recommendedTests: [],
+      treatmentOptions: [],
+      followUpAdvice: 'Please use clinical judgment for treatment decisions.',
+      disclaimer: 'AI suggestions are for reference only.'
+    };
+  }
+}
+
+/**
+ * Smart Follow-Up Suggestions
+ */
+async function suggestFollowUp({ diagnosis, medicines, patientAge, consultationType }) {
+  const systemMsg = {
+    role: 'system',
+    content: `You are a clinical follow-up scheduling AI. Based on the diagnosis and treatment, suggest optimal follow-up timing and monitoring requirements.
+
+Respond in JSON format:
+{
+  "suggestedDays": 7,
+  "reason": "",
+  "priority": "routine|important|urgent",
+  "monitoringPoints": [],
+  "warningSignsToWatch": [],
+  "testsBeforeFollowUp": []
+}`
+  };
+
+  const userMsg = {
+    role: 'user',
+    content: `Diagnosis: ${diagnosis || 'General'}. Medicines: ${JSON.stringify(medicines || [])}. Patient age: ${patientAge || 'adult'}. Type: ${consultationType || 'consultation'}.`
+  };
+
+  const result = await chat([systemMsg, userMsg], { json: true, temperature: 0.3 });
+  try { return JSON.parse(result); } catch {
+    return { suggestedDays: 7, reason: 'Standard follow-up', priority: 'routine' };
+  }
+}
+
+/**
+ * Voice-to-Prescription AI
+ */
+async function voiceToPrescription(transcription) {
+  const systemMsg = {
+    role: 'system',
+    content: `You are a medical transcription AI that converts doctor's voice dictation into structured prescription data. Extract diagnosis, symptoms, medications (with dosage, frequency, duration, timing), lab tests, advice, and follow-up date.
+
+Respond in JSON format:
+{
+  "diagnosis": "",
+  "symptoms": [],
+  "medicines": [{ "name": "", "dosage": "", "frequency": "", "duration": "", "timing": "after-food|before-food|empty-stomach|bedtime", "notes": "" }],
+  "tests": [],
+  "advice": "",
+  "followUpDays": null,
+  "vitals": { "bp": "", "pulse": null, "temperature": null, "weight": null, "spo2": null }
+}`
+  };
+
+  const userMsg = { role: 'user', content: `Voice transcription: "${transcription}"` };
+  const result = await chat([systemMsg, userMsg], { json: true, temperature: 0.1 });
+  try { return JSON.parse(result); } catch { return { raw: result, diagnosis: '', medicines: [], tests: [] }; }
+}
+
+module.exports = {
+  chat,
+  getProvider,
+  suggestDiagnosis,
+  suggestPrescription,
+  assessPatientRisk,
+  optimizeSchedule,
+  summarizeNotes,
+  // New AI features
+  healthAssistantChat,
+  analyzeLabReport,
+  checkDrugInteractions,
+  checkAllergyInteractions,
+  clinicalDecisionSupport,
+  suggestFollowUp,
+  voiceToPrescription
+};
