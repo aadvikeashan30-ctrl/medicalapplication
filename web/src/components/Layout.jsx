@@ -64,9 +64,9 @@ export default function Layout() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-950 overflow-hidden">
+    <div className="flex h-screen bg-gray-50 overflow-hidden">
       {/* Background mesh */}
-      <div className="fixed inset-0 bg-mesh-gradient pointer-events-none" />
+      <div className="fixed inset-0 pointer-events-none" style={{ background: 'radial-gradient(at 30% 20%, rgba(99,102,241,0.03) 0%, transparent 50%), radial-gradient(at 80% 80%, rgba(16,185,129,0.02) 0%, transparent 50%)' }} />
 
       {/* Mobile overlay */}
       {mobileOpen && (
@@ -81,14 +81,14 @@ export default function Layout() {
         ${mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
       >
         {/* Logo */}
-        <div className="flex items-center gap-3 px-5 py-5 border-b border-white/5">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 glow-indigo" style={{ background: 'linear-gradient(135deg, #6366f1, #a855f7)' }}>
+        <div className="flex items-center gap-3 px-5 py-5 border-b border-gray-100">
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg, #4f46e5, #7c3aed)' }}>
             <FiActivity className="text-white text-sm" />
           </div>
           {sidebarOpen && (
             <div className="animate-fade-up">
-              <h1 className="text-base font-bold text-white">DocClinic</h1>
-              <p className="text-[10px] text-indigo-400 font-medium tracking-[0.15em] uppercase">Pro</p>
+              <h1 className="text-base font-bold text-gray-900">DocClinic</h1>
+              <p className="text-[10px] text-indigo-500 font-medium tracking-[0.15em] uppercase">Pro</p>
             </div>
           )}
         </div>
@@ -98,7 +98,7 @@ export default function Layout() {
           {navGroups.map((group) => (
             <div key={group.label}>
               {sidebarOpen && (
-                <p className="text-[10px] font-semibold text-gray-600 uppercase tracking-wider px-3 mb-2">{group.label}</p>
+                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider px-3 mb-2">{group.label}</p>
               )}
               <div className="space-y-0.5">
                 {group.items.map((item) => (
@@ -122,14 +122,14 @@ export default function Layout() {
         </nav>
 
         {/* User card */}
-        <div className="p-3 border-t border-white/5">
+        <div className="p-3 border-t border-gray-100">
           {sidebarOpen ? (
-            <div className="flex items-center gap-3 p-2.5 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)' }}>
+            <div className="flex items-center gap-3 p-2.5 rounded-xl bg-gray-50">
               <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg, #10b981, #06b6d4)' }}>
                 <span className="text-white text-xs font-bold">{(user.name || 'D')[0]}</span>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-white truncate">Dr. {user.name || 'Doctor'}</p>
+                <p className="text-sm font-medium text-gray-900 truncate">Dr. {user.name || 'Doctor'}</p>
                 <p className="text-[11px] text-gray-500 truncate capitalize">{user.plan || 'free'} plan</p>
               </div>
             </div>
@@ -152,7 +152,7 @@ export default function Layout() {
           </div>
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 px-3 py-2 mt-1 w-full rounded-xl text-rose-400 hover:text-rose-300 hover:bg-rose-500/5 transition-all font-medium text-xs"
+            className="flex items-center gap-2 px-3 py-2 mt-1 w-full rounded-xl text-rose-500 hover:bg-rose-50 transition-all font-medium text-xs"
           >
             <FiLogOut className="text-sm" />
             {sidebarOpen && <span>Logout</span>}
@@ -165,32 +165,32 @@ export default function Layout() {
         {/* Header */}
         <header className="header-glass px-4 lg:px-6 py-3 flex items-center justify-between z-30 relative">
           <div className="flex items-center gap-3">
-            <button onClick={() => setMobileOpen(!mobileOpen)} className="lg:hidden p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-colors">
+            <button onClick={() => setMobileOpen(!mobileOpen)} className="lg:hidden p-2 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors">
               <FiMenu className="text-lg" />
             </button>
-            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="hidden lg:flex p-2 rounded-lg text-gray-500 hover:text-white hover:bg-white/5 transition-colors">
+            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="hidden lg:flex p-2 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors">
               {sidebarOpen ? <FiX className="text-base" /> : <FiMenu className="text-base" />}
             </button>
 
             {/* Search */}
             <form onSubmit={handleSearch} className="relative hidden md:block">
-              <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600 text-sm" />
+              <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm" />
               <input
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search patients..."
-                className="pl-9 pr-4 py-2 rounded-lg w-56 focus:w-72 text-sm text-white placeholder:text-gray-600 outline-none transition-all duration-300"
-                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+                className="pl-9 pr-4 py-2 rounded-lg w-56 focus:w-72 text-sm text-gray-900 placeholder:text-gray-400 bg-gray-50 border border-gray-200 outline-none transition-all duration-300 focus:border-indigo-300 focus:bg-white"
+                style={{ boxShadow: 'none' }}
               />
             </form>
           </div>
 
           <div className="flex items-center gap-1.5">
             <NotificationCenter />
-            <div className="hidden sm:flex items-center gap-2 pl-3 ml-1.5 border-l border-white/5">
+            <div className="hidden sm:flex items-center gap-2 pl-3 ml-1.5 border-l border-gray-200">
               <div className="text-right">
-                <p className="text-sm font-medium text-white">{user.clinicName || 'My Clinic'}</p>
+                <p className="text-sm font-medium text-gray-900">{user.clinicName || 'My Clinic'}</p>
                 <p className="text-[11px] text-gray-500 capitalize flex items-center gap-1.5 justify-end">
                   <span className="status-dot status-online" />
                   {user.plan || 'free'}

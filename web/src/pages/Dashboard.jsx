@@ -164,7 +164,7 @@ export default function Dashboard() {
               </div>
 
               {/* Value */}
-              <p className="text-3xl font-bold text-white tabular-nums animate-counter">
+              <p className="text-3xl font-bold text-gray-900 tabular-nums animate-counter">
                 {c.isRevenue ? (
                   <><span className="text-xl opacity-60">₹</span><AnimatedCounter end={Number(c.value || 0)} /></>
                 ) : (
@@ -190,7 +190,7 @@ export default function Dashboard() {
         {/* Live Queue - 2 columns */}
         <div className="lg:col-span-2 card animate-fade-up" style={{ animationDelay: '300ms' }}>
           <div className="flex items-center justify-between mb-5">
-            <h3 className="text-base font-semibold text-white flex items-center gap-2">
+            <h3 className="text-base font-semibold text-gray-900 flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               Live Queue
               {queue && queue.length > 0 && (
@@ -235,7 +235,7 @@ export default function Dashboard() {
                       {apt.status === 'completed' ? <FiCheckCircle /> : `#${apt.tokenNumber}`}
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-white">{apt.patientId?.name || 'Patient'}</p>
+                      <p className="text-sm font-medium text-gray-900">{apt.patientId?.name || 'Patient'}</p>
                       <p className="text-xs text-gray-500">{apt.timeSlot} · {apt.type}</p>
                     </div>
                   </div>
@@ -270,31 +270,31 @@ export default function Dashboard() {
         <div className="space-y-6">
           {/* Quick Actions */}
           <div className="card animate-fade-up" style={{ animationDelay: '400ms' }}>
-            <h3 className="text-base font-semibold text-white mb-4">Quick Actions</h3>
+            <h3 className="text-base font-semibold text-gray-900 mb-4">Quick Actions</h3>
             <div className="grid grid-cols-2 gap-2.5">
               <Link to="/patients" className="quick-action-btn">
                 <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
                   <FiUserPlus className="text-white text-sm" />
                 </div>
-                <span className="text-xs font-medium text-gray-400">Add Patient</span>
+                <span className="text-xs font-medium text-gray-600">Add Patient</span>
               </Link>
               <Link to="/appointments" className="quick-action-btn">
                 <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
                   <FiCalendar className="text-white text-sm" />
                 </div>
-                <span className="text-xs font-medium text-gray-400">Book Appt</span>
+                <span className="text-xs font-medium text-gray-600">Book Appt</span>
               </Link>
               <Link to="/prescriptions" className="quick-action-btn">
                 <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
                   <FiActivity className="text-white text-sm" />
                 </div>
-                <span className="text-xs font-medium text-gray-400">Prescribe</span>
+                <span className="text-xs font-medium text-gray-600">Prescribe</span>
               </Link>
               <Link to="/billing" className="quick-action-btn">
                 <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
                   <FiDollarSign className="text-white text-sm" />
                 </div>
-                <span className="text-xs font-medium text-gray-400">Create Bill</span>
+                <span className="text-xs font-medium text-gray-600">Create Bill</span>
               </Link>
             </div>
           </div>
@@ -302,8 +302,8 @@ export default function Dashboard() {
           {/* Revenue Summary */}
           {revenue && (
             <div className="card animate-fade-up" style={{ animationDelay: '500ms' }}>
-              <h3 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
-                <FiTrendingUp className="text-emerald-400" /> Revenue
+              <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <FiTrendingUp className="text-emerald-500" /> Revenue
               </h3>
               <div className="space-y-3">
                 {[
@@ -313,12 +313,12 @@ export default function Dashboard() {
                 ].map((r) => (
                   <div key={r.label} className="flex items-center justify-between">
                     <span className="text-sm text-gray-500">{r.label}</span>
-                    <span className="text-sm font-semibold text-white tabular-nums">₹{(r.value || 0).toLocaleString('en-IN')}</span>
+                    <span className="text-sm font-semibold text-gray-900 tabular-nums">₹{(r.value || 0).toLocaleString('en-IN')}</span>
                   </div>
                 ))}
-                <div className="pt-3 border-t border-white/5 flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-300">All Time</span>
-                  <span className="text-lg font-bold gradient-text-cyan tabular-nums">₹{(revenue.total || 0).toLocaleString('en-IN')}</span>
+                <div className="pt-3 border-t border-gray-100 flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-700">All Time</span>
+                  <span className="text-lg font-bold text-indigo-600 tabular-nums">₹{(revenue.total || 0).toLocaleString('en-IN')}</span>
                 </div>
               </div>
             </div>
@@ -329,8 +329,8 @@ export default function Dashboard() {
       {/* ═══════ CHARTS ROW ═══════ */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="card animate-fade-up" style={{ animationDelay: '600ms' }}>
-          <h3 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
-            <FiTrendingUp className="text-indigo-400" /> Revenue Trend
+          <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <FiTrendingUp className="text-indigo-500" /> Revenue Trend
           </h3>
           <RevenueChart monthly={analytics?.monthlyRevenue || []} />
         </div>
