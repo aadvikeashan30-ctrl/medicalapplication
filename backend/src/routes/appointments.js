@@ -103,7 +103,77 @@ router.post(
     });
 
     const populated = await appointment.populate('patientId', 'name phone patientId age gender');
+
+    // Auto-send WhatsApp confirmation to patient
+    if (populated.patientId?.phone && req.body.sendNotification !== false) {
+      try {
+        const { sendMessage } = require('../services/whatsappService');
+        const dateStr = new Date(populated.date).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
+        await sendMessage({
+          to: populated.patientId.phone,
+          body: `Hi ${populated.patientId.name}! Your appointment is confirmed for ${dateStr} at ${populated.timeSlot}. Token #${populated.tokenNumber}. Please arrive 10 min early. - ${req.user.clinicName || 'Your Clinic'}`
+        });
+      } catch (e) { /* non-critical */ }
+    }
+
     res.status(201).json(populated);
+  })
+);
+
+// Reschedule appointment (change date/time without cancelling)
+router.put(
+  '/:id/reschedule',
+  auth,
+  [
+    body('date').notEmpty().withMessage('New date is required'),
+    body('timeSlot').notEmpty().withMessage('New time slot is required')
+  ],
+  asyncHandler(async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ message: errors.array().map((e) => e.msg).join(', ') });
+    }
+
+    const appointment = await Appointment.findOne({ _id: req.params.id, doctorId: req.user._id });
+    if (!appointment) return res.status(404).json({ message: 'Appointment not found' });
+    if (appointment.status === 'completed' || appointment.status === 'cancelled') {
+      return res.status(400).json({ message: 'Cannot reschedule a completed or cancelled appointment' });
+    }
+
+    const newDate = new Date(req.body.date);
+    const dayStart = new Date(newDate); dayStart.setHours(0, 0, 0, 0);
+    const dayEnd = new Date(dayStart); dayEnd.setDate(dayEnd.getDate() + 1);
+
+    // Check for conflicts at new slot
+    const conflict = await Appointment.findOne({
+      doctorId: req.user._id,
+      _id: { $ne: appointment._id },
+      date: { $gte: dayStart, $lt: dayEnd },
+      timeSlot: req.body.timeSlot,
+      status: { $ne: 'cancelled' }
+    });
+    if (conflict) return res.status(409).json({ message: 'New time slot is already booked' });
+
+    appointment.date = newDate;
+    appointment.timeSlot = req.body.timeSlot;
+    appointment.status = 'scheduled';
+    await appointment.save();
+
+    const populated = await appointment.populate('patientId', 'name phone patientId age gender');
+
+    // Notify patient about reschedule
+    if (populated.patientId?.phone) {
+      try {
+        const { sendMessage } = require('../services/whatsappService');
+        const dateStr = newDate.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
+        await sendMessage({
+          to: populated.patientId.phone,
+          body: `Hi ${populated.patientId.name}, your appointment has been rescheduled to ${dateStr} at ${req.body.timeSlot}. Please contact the clinic if you need to change. - ${req.user.clinicName || 'Your Clinic'}`
+        });
+      } catch (e) { /* non-critical */ }
+    }
+
+    res.json(populated);
   })
 );
 

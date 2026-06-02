@@ -540,4 +540,98 @@ router.post(
   })
 );
 
+// ══════ Patient Reviews (real feedback system) ══════
+router.post(
+  '/review',
+  asyncHandler(async (req, res) => {
+    const { doctorId, patientName, patientPhone, rating, comment, tags, appointmentId } = req.body;
+    if (!doctorId || !patientName || !rating) {
+      return res.status(400).json({ message: 'doctorId, patientName, and rating are required' });
+    }
+    if (rating < 1 || rating > 5) {
+      return res.status(400).json({ message: 'Rating must be between 1 and 5' });
+    }
+
+    const Review = require('../models/Review');
+
+    // Check if patient already reviewed this doctor
+    if (patientPhone) {
+      const existing = await Review.findOne({ doctorId, patientPhone });
+      if (existing) {
+        // Update existing review
+        existing.rating = rating;
+        existing.comment = comment || existing.comment;
+        existing.tags = tags || existing.tags;
+        await existing.save();
+        return res.json({ message: 'Review updated successfully. Thank you!' });
+      }
+    }
+
+    // Verify appointment if provided (marks review as verified)
+    let isVerified = false;
+    if (appointmentId) {
+      const Appointment = require('../models/Appointment');
+      const apt = await Appointment.findOne({ _id: appointmentId, doctorId, status: 'completed' });
+      if (apt) isVerified = true;
+    }
+
+    await Review.create({
+      doctorId,
+      patientName,
+      patientPhone: patientPhone || undefined,
+      rating,
+      comment: comment || '',
+      tags: tags || [],
+      appointmentId: appointmentId || undefined,
+      isVerified
+    });
+
+    res.status(201).json({ message: 'Review submitted successfully. Thank you!' });
+  })
+);
+
+// Get reviews for a doctor (public)
+router.get(
+  '/reviews/:doctorId',
+  asyncHandler(async (req, res) => {
+    const Review = require('../models/Review');
+    const [reviews, stats] = await Promise.all([
+      Review.find({ doctorId: req.params.doctorId, isVisible: true })
+        .sort({ createdAt: -1 })
+        .limit(20)
+        .select('patientName rating comment tags isVerified createdAt doctorReply doctorRepliedAt'),
+      Review.getAverageRating(req.params.doctorId)
+    ]);
+    res.json({ reviews, ...stats });
+  })
+);
+
+// ══════ Patient Prescription PDF Download (public, by phone verification) ══════
+router.get(
+  '/prescription-pdf/:id',
+  asyncHandler(async (req, res) => {
+    const { phone } = req.query;
+    if (!phone) return res.status(400).json({ message: 'Phone number required for verification' });
+
+    const Prescription = require('../models/Prescription');
+    const prescription = await Prescription.findById(req.params.id)
+      .populate('patientId', 'name patientId age gender phone')
+      .populate('doctorId', 'name specialty qualification clinicName clinicAddress clinicCity phone registrationNo');
+
+    if (!prescription) return res.status(404).json({ message: 'Prescription not found' });
+
+    // Verify patient's phone matches
+    if (prescription.patientId?.phone !== phone) {
+      return res.status(403).json({ message: 'Phone number does not match patient records' });
+    }
+
+    const { generatePrescriptionPDF } = require('../services/pdfService');
+    const pdfBuffer = await generatePrescriptionPDF(prescription, prescription.doctorId);
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename="prescription-${prescription.prescriptionNo || 'RX'}.pdf"`);
+    res.send(pdfBuffer);
+  })
+);
+
 module.exports = router;

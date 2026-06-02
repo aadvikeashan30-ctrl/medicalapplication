@@ -20,6 +20,34 @@ import TodayScheduleWidget from '../components/TodayScheduleWidget';
 
 const greetingForHour = (h) => (h < 12 ? 'Good Morning' : h < 17 ? 'Good Afternoon' : 'Good Evening');
 
+// Daily Revenue Target component
+function DailyRevenueTarget({ todayRevenue, target }) {
+  const percent = Math.min(100, Math.round((todayRevenue / target) * 100));
+  const isAchieved = percent >= 100;
+
+  return (
+    <div className={`p-3 rounded-xl border ${isAchieved ? 'bg-emerald-50 border-emerald-200' : 'bg-gray-50 border-gray-100'}`}>
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-xs font-medium text-gray-600">
+          {isAchieved ? '🎉 Target Achieved!' : 'Daily Target'}
+        </span>
+        <span className={`text-xs font-bold ${isAchieved ? 'text-emerald-600' : 'text-indigo-600'}`}>
+          {percent}%
+        </span>
+      </div>
+      <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+        <div
+          className={`h-full rounded-full transition-all duration-1000 ease-out ${isAchieved ? 'bg-gradient-to-r from-emerald-400 to-emerald-600' : 'bg-gradient-to-r from-indigo-400 to-indigo-600'}`}
+          style={{ width: `${percent}%` }}
+        />
+      </div>
+      <p className="text-[11px] text-gray-500 mt-1.5">
+        ₹{todayRevenue.toLocaleString('en-IN')} of ₹{target.toLocaleString('en-IN')} goal
+      </p>
+    </div>
+  );
+}
+
 const statusColors = {
   completed: 'badge-success',
   'in-progress': 'badge-info',
@@ -299,13 +327,17 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Revenue Summary */}
+          {/* Revenue Summary + Daily Target */}
           {revenue && (
             <div className="card animate-fade-up" style={{ animationDelay: '500ms' }}>
               <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <FiTrendingUp className="text-emerald-500" /> Revenue
               </h3>
-              <div className="space-y-3">
+
+              {/* Daily Revenue Target Progress */}
+              <DailyRevenueTarget todayRevenue={revenue.today || 0} target={user.consultationFee ? user.consultationFee * 10 : 5000} />
+
+              <div className="space-y-3 mt-4">
                 {[
                   { label: 'Today', value: revenue.today },
                   { label: 'This Week', value: revenue.week },

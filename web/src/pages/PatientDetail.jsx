@@ -29,6 +29,7 @@ export default function PatientDetail() {
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: FiUser },
+    { id: 'history', label: 'Visit History', icon: FiClock },
     { id: 'appointments', label: 'Appointments', icon: FiCalendar },
     { id: 'prescriptions', label: 'Prescriptions', icon: FiFileText },
     { id: 'labtests', label: 'Lab Tests', icon: FiActivity },
@@ -202,6 +203,58 @@ export default function PatientDetail() {
         </div>
       )}
 
+
+      {activeTab === 'history' && (
+        <div className="card animate-fade-in">
+          <h3 className="font-bold text-gray-900 mb-5 flex items-center gap-2">
+            <FiClock className="text-indigo-500" /> Complete Visit History
+          </h3>
+          {timelineEvents.length === 0 ? (
+            <p className="text-center text-gray-400 py-8">No visit history yet</p>
+          ) : (
+            <div className="relative">
+              {/* Timeline line */}
+              <div className="absolute left-5 top-2 bottom-2 w-px bg-gradient-to-b from-indigo-200 via-purple-200 to-emerald-200" />
+
+              <div className="space-y-4">
+                {timelineEvents.map((event, idx) => {
+                  const typeConfig = {
+                    appointment: { color: 'bg-blue-500', border: 'border-blue-200', bgLight: 'bg-blue-50', icon: '📋' },
+                    prescription: { color: 'bg-purple-500', border: 'border-purple-200', bgLight: 'bg-purple-50', icon: '💊' },
+                    billing: { color: 'bg-emerald-500', border: 'border-emerald-200', bgLight: 'bg-emerald-50', icon: '💰' },
+                    labtest: { color: 'bg-rose-500', border: 'border-rose-200', bgLight: 'bg-rose-50', icon: '🔬' },
+                    checkup: { color: 'bg-amber-500', border: 'border-amber-200', bgLight: 'bg-amber-50', icon: '🩺' },
+                  };
+                  const cfg = typeConfig[event.type] || typeConfig.appointment;
+
+                  return (
+                    <div key={idx} className="flex gap-4 animate-slide-in" style={{ animationDelay: `${idx * 60}ms` }}>
+                      {/* Dot */}
+                      <div className="relative flex-shrink-0">
+                        <div className={`w-10 h-10 rounded-xl ${cfg.bgLight} border ${cfg.border} flex items-center justify-center text-base`}>
+                          {cfg.icon}
+                        </div>
+                      </div>
+                      {/* Content */}
+                      <div className={`flex-1 p-4 rounded-xl border ${cfg.border} ${cfg.bgLight} transition-all hover:shadow-sm`}>
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <p className="font-semibold text-gray-900 text-sm">{event.title}</p>
+                            {event.description && (
+                              <p className="text-xs text-gray-600 mt-0.5">{event.description}</p>
+                            )}
+                          </div>
+                          <span className="text-[11px] text-gray-400 whitespace-nowrap">{event.date}</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {activeTab === 'appointments' && (
         <div className="space-y-3 animate-fade-in">
