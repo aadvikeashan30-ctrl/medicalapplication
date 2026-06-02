@@ -119,8 +119,33 @@ export const DEMO_RESPONSES = {
   ],
   '/labtests': { tests: [], total: 0 },
   '/whatsapp/run-reminders': { processed: 5, sent: 3, failed: 0 },
-  '/ai/status': { provider: 'demo', available: true, features: ['chat', 'diagnosis'] },
+  '/whatsapp/send': { message: 'Message sent (demo mode)', sent: true },
+  '/whatsapp/prescription': { message: 'Prescription shared (demo mode)', sent: true },
+  '/ai/status': { provider: 'demo', available: true, features: ['chat', 'diagnosis', 'risk-scoring'] },
   '/ai/chat': { response: 'Hello Doctor! I am your AI assistant. How can I help?', provider: 'demo' },
+  '/ai/risk-score': {
+    riskScore: 6,
+    riskLevel: 'moderate',
+    factors: ['Age > 45', 'Irregular follow-ups', 'Hypertension history', 'BMI elevated'],
+    recommendations: ['Quarterly BP monitoring', 'Lipid panel every 6 months', 'Lifestyle counseling', 'Reduce salt intake'],
+    predictedNoShowProbability: 15,
+    suggestedFollowUp: '2 weeks',
+    provider: 'demo'
+  },
+  '/ai/diagnose': {
+    diagnoses: [
+      { condition: 'Viral Upper Respiratory Infection', probability: 'high', icd10: 'J06.9' },
+      { condition: 'Allergic Rhinitis', probability: 'medium', icd10: 'J30.4' }
+    ],
+    urgency: 'routine', provider: 'demo'
+  },
+  '/ai/prescribe': {
+    medicines: [
+      { name: 'Paracetamol', dosage: '500mg', frequency: '1-0-1', duration: '3 days', timing: 'after-food' },
+      { name: 'Cetirizine', dosage: '10mg', frequency: '0-0-1', duration: '5 days', timing: 'bedtime' }
+    ],
+    warnings: [], advice: 'Rest, hydration, steam inhalation.', provider: 'demo'
+  },
   '/notifications': []
 };
 
@@ -151,17 +176,25 @@ export function getDemoResponse(url) {
     if (noSlash.startsWith(cleanKey) || cleanKey.startsWith(noSlash)) return value;
   }
 
-  // Match common patterns
-  if (cleanPath.includes('patient')) return DEMO_RESPONSES['/patients'];
-  if (cleanPath.includes('appointment')) return DEMO_RESPONSES['/appointments'];
-  if (cleanPath.includes('prescription')) return DEMO_RESPONSES['/prescriptions'];
-  if (cleanPath.includes('billing')) return DEMO_RESPONSES['/billing'];
-  if (cleanPath.includes('medicine')) return DEMO_RESPONSES['/medicines'];
-  if (cleanPath.includes('expense')) return DEMO_RESPONSES['/expenses'];
-  if (cleanPath.includes('labtest') || cleanPath.includes('lab-test')) return DEMO_RESPONSES['/labtests'];
+  // Match common patterns (more specific first)
+  if (cleanPath.includes('risk-score') || cleanPath.includes('ai/risk')) return DEMO_RESPONSES['/ai/risk-score'];
+  if (cleanPath.includes('ai/diagnose')) return DEMO_RESPONSES['/ai/diagnose'];
+  if (cleanPath.includes('ai/prescribe')) return DEMO_RESPONSES['/ai/prescribe'];
+  if (cleanPath.includes('ai/chat')) return DEMO_RESPONSES['/ai/chat'];
+  if (cleanPath.includes('ai/')) return DEMO_RESPONSES['/ai/status'];
+  if (cleanPath.includes('whatsapp/send')) return DEMO_RESPONSES['/whatsapp/send'];
+  if (cleanPath.includes('whatsapp/prescription')) return DEMO_RESPONSES['/whatsapp/prescription'];
+  if (cleanPath.includes('whatsapp')) return DEMO_RESPONSES['/whatsapp/run-reminders'];
   if (cleanPath.includes('dashboard/stat')) return DEMO_RESPONSES['/dashboard/stats'];
   if (cleanPath.includes('dashboard/analytic')) return DEMO_RESPONSES['/dashboard/analytics'];
   if (cleanPath.includes('revenue')) return DEMO_RESPONSES['/billing/revenue/summary'];
+  if (cleanPath.includes('billing')) return DEMO_RESPONSES['/billing'];
+  if (cleanPath.includes('appointment')) return DEMO_RESPONSES['/appointments'];
+  if (cleanPath.includes('prescription')) return DEMO_RESPONSES['/prescriptions'];
+  if (cleanPath.includes('medicine')) return DEMO_RESPONSES['/medicines'];
+  if (cleanPath.includes('expense')) return DEMO_RESPONSES['/expenses'];
+  if (cleanPath.includes('labtest') || cleanPath.includes('lab-test')) return DEMO_RESPONSES['/labtests'];
+  if (cleanPath.includes('patient')) return DEMO_RESPONSES['/patients'];
 
   // Default — return empty but valid response (no error message)
   return {};
