@@ -121,11 +121,16 @@ export default function Billing() {
   };
 
   return (
-    <div className="animate-fade-in space-y-6">
+    <div className="page-enter space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Billing</h1>
-          <p className="text-gray-500 mt-1">Manage invoices and payments</p>
+        <div className="animate-fade-up">
+          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center glow-emerald">
+              <FiDollarSign className="text-white text-lg" />
+            </div>
+            Billing
+          </h1>
+          <p className="text-gray-500 mt-1 ml-[52px]">Manage invoices and payments</p>
         </div>
         <div className="flex gap-2">
           {bills.length > 0 && (
@@ -139,18 +144,21 @@ export default function Billing() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-2xl p-5 text-white">
-          <p className="text-emerald-100 text-sm">Today's Collection</p>
-          <p className="text-3xl font-bold mt-1">{formatINR(revenue?.today)}</p>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 animate-fade-up stagger-2">
+        <div className="relative overflow-hidden rounded-2xl p-5 text-white border-gradient-animated" style={{ background: 'linear-gradient(135deg, #059669, #10b981)' }}>
+          <div className="absolute -top-4 -right-4 w-20 h-20 bg-white/10 rounded-full" />
+          <p className="text-emerald-100 text-sm font-medium">Today's Collection</p>
+          <p className="text-3xl font-bold mt-1 tabular-nums">{formatINR(revenue?.today)}</p>
         </div>
-        <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-5 text-white">
-          <p className="text-blue-100 text-sm">This Month</p>
-          <p className="text-3xl font-bold mt-1">{formatINR(revenue?.month)}</p>
+        <div className="relative overflow-hidden rounded-2xl p-5 text-white" style={{ background: 'linear-gradient(135deg, #4f46e5, #6366f1)' }}>
+          <div className="absolute -top-4 -right-4 w-20 h-20 bg-white/10 rounded-full" />
+          <p className="text-indigo-100 text-sm font-medium">This Month</p>
+          <p className="text-3xl font-bold mt-1 tabular-nums">{formatINR(revenue?.month)}</p>
         </div>
-        <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl p-5 text-white">
-          <p className="text-orange-100 text-sm">Lifetime</p>
-          <p className="text-3xl font-bold mt-1">{formatINR(revenue?.total)}</p>
+        <div className="relative overflow-hidden rounded-2xl p-5 text-white" style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)' }}>
+          <div className="absolute -top-4 -right-4 w-20 h-20 bg-white/10 rounded-full" />
+          <p className="text-purple-100 text-sm font-medium">Lifetime Revenue</p>
+          <p className="text-3xl font-bold mt-1 tabular-nums">{formatINR(revenue?.total)}</p>
         </div>
       </div>
 

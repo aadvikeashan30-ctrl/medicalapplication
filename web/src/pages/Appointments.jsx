@@ -86,11 +86,16 @@ export default function Appointments() {
   };
 
   return (
-    <div className="animate-fade-in space-y-6">
+    <div className="page-enter space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Appointments</h1>
-          <p className="text-gray-500 mt-1">Manage your daily schedule</p>
+        <div className="animate-fade-up">
+          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center glow-purple">
+              <FiCalendar className="text-white text-lg" />
+            </div>
+            Appointments
+          </h1>
+          <p className="text-gray-500 mt-1 ml-[52px]">Manage your daily schedule</p>
         </div>
         <div className="flex gap-3">
           <input
@@ -104,22 +109,34 @@ export default function Appointments() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <p className="text-2xl font-bold text-gray-900">{counts.total}</p>
-          <p className="text-sm text-gray-500">Total</p>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-fade-up stagger-2">
+        <div className="stat-card border-gradient-animated">
+          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-gray-100 to-slate-100 flex items-center justify-center mb-3 border border-gray-200">
+            <FiCalendar className="text-gray-600 text-sm" />
+          </div>
+          <p className="text-2xl font-bold text-gray-900 tabular-nums">{counts.total}</p>
+          <p className="text-xs text-gray-500 mt-0.5">Total Today</p>
         </div>
-        <div className="bg-white rounded-xl p-4 border border-emerald-100">
-          <p className="text-2xl font-bold text-emerald-600">{counts.completed}</p>
-          <p className="text-sm text-gray-500">Completed</p>
+        <div className="stat-card">
+          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-50 to-teal-50 flex items-center justify-center mb-3 border border-emerald-200">
+            <FiCheck className="text-emerald-600 text-sm" />
+          </div>
+          <p className="text-2xl font-bold text-emerald-600 tabular-nums">{counts.completed}</p>
+          <p className="text-xs text-gray-500 mt-0.5">Completed</p>
         </div>
-        <div className="bg-white rounded-xl p-4 border border-blue-100">
-          <p className="text-2xl font-bold text-blue-600">{counts.inProgress}</p>
-          <p className="text-sm text-gray-500">In Progress</p>
+        <div className="stat-card">
+          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-50 to-cyan-50 flex items-center justify-center mb-3 border border-blue-200">
+            <FiPlay className="text-blue-600 text-sm" />
+          </div>
+          <p className="text-2xl font-bold text-blue-600 tabular-nums">{counts.inProgress}</p>
+          <p className="text-xs text-gray-500 mt-0.5">In Progress</p>
         </div>
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <p className="text-2xl font-bold text-gray-600">{counts.scheduled}</p>
-          <p className="text-sm text-gray-500">Waiting</p>
+        <div className="stat-card">
+          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-50 to-orange-50 flex items-center justify-center mb-3 border border-amber-200">
+            <FiClock className="text-amber-600 text-sm" />
+          </div>
+          <p className="text-2xl font-bold text-amber-600 tabular-nums">{counts.scheduled}</p>
+          <p className="text-xs text-gray-500 mt-0.5">Waiting</p>
         </div>
       </div>
 

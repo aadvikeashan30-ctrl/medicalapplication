@@ -140,36 +140,52 @@ export default function Patients() {
   };
 
   return (
-    <div className="animate-fade-in space-y-6">
+    <div className="page-enter space-y-6">
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Patients</h1>
-          <p className="text-gray-500 mt-1">
-            {data ? `${data.total} total patient${data.total === 1 ? '' : 's'}` : 'Loading...'}
+        <div className="animate-fade-up">
+          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center glow-indigo">
+              <FiUsers className="text-white text-lg" />
+            </div>
+            Patients
+          </h1>
+          <p className="text-gray-500 mt-1 ml-[52px]">
+            {data ? (
+              <span className="flex items-center gap-2">
+                <span className="font-semibold text-gray-900">{data.total}</span> total patients registered
+              </span>
+            ) : 'Loading...'}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 animate-fade-up stagger-2">
           {patients.length > 0 && (
             <button onClick={() => exportPatientsCSV(patients)} className="btn-secondary flex items-center gap-2 text-sm !py-2">
-              <FiDownload /> Export CSV
+              <FiDownload /> Export
             </button>
           )}
           <button onClick={openAdd} className="btn-primary flex items-center gap-2">
-            <FiPlus /> Add New Patient
+            <FiPlus /> Add Patient
           </button>
         </div>
       </div>
 
-      <div className="relative max-w-md">
+      {/* Search with animated focus */}
+      <div className="relative max-w-lg animate-fade-up stagger-3">
         <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
         <input
           type="text"
           placeholder="Search by name, phone, or patient ID..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="input-field pl-11"
+          className="input-field pl-11 !py-3"
           aria-label="Search patients"
         />
+        {search && (
+          <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-md hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors">
+            <FiX className="text-sm" />
+          </button>
+        )}
       </div>
 
       {error && (
@@ -191,13 +207,17 @@ export default function Patients() {
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {patients.map((p) => (
-            <div key={p._id} className="card hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+          {patients.map((p, idx) => (
+            <div key={p._id} className="card border-gradient-animated animate-fade-up" style={{ animationDelay: `${Math.min(idx * 50, 300)}ms` }}>
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <div
-                    className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg ${
-                      p.gender === 'male' ? 'bg-blue-100 text-blue-700' : 'bg-pink-100 text-pink-700'
+                    className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold text-lg shadow-sm ${
+                      p.gender === 'male'
+                        ? 'bg-gradient-to-br from-blue-100 to-indigo-100 text-blue-700 border border-blue-200'
+                        : p.gender === 'female'
+                        ? 'bg-gradient-to-br from-pink-100 to-rose-100 text-pink-700 border border-pink-200'
+                        : 'bg-gradient-to-br from-purple-100 to-violet-100 text-purple-700 border border-purple-200'
                     }`}
                   >
                     {p.name?.charAt(0)?.toUpperCase()}
