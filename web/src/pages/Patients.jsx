@@ -208,11 +208,11 @@ export default function Patients() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {patients.map((p, idx) => (
-            <div key={p._id} className="card border-gradient-animated animate-fade-up" style={{ animationDelay: `${Math.min(idx * 50, 300)}ms` }}>
+            <div key={p._id} className="card card-3d border-gradient-animated animate-fade-up" style={{ animationDelay: `${Math.min(idx * 50, 300)}ms` }}>
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <div
-                    className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold text-lg shadow-sm ${
+                    className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold text-lg avatar-3d ${
                       p.gender === 'male'
                         ? 'bg-gradient-to-br from-blue-100 to-indigo-100 text-blue-700 border border-blue-200'
                         : p.gender === 'female'

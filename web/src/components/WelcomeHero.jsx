@@ -3,7 +3,7 @@ import { FiCalendar, FiTrendingUp, FiUsers, FiZap } from 'react-icons/fi';
 
 export default function WelcomeHero({ greeting, doctorName, stats }) {
   return (
-    <div className="relative overflow-hidden rounded-2xl p-6 lg:p-8 animate-fade-up bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700">
+    <div className="relative overflow-hidden rounded-2xl p-6 lg:p-8 animate-fade-up bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 glass-3d !bg-none" style={{ background: 'linear-gradient(135deg, #4f46e5, #7c3aed, #4f46e5)' }}>
       {/* Decorative orbs */}
       <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full" />
       <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-white/5 rounded-full" />

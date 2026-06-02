@@ -183,11 +183,11 @@ export default function Dashboard() {
           {statCards.map((c, idx) => (
             <div
               key={c.label}
-              className="stat-card border-gradient-animated animate-fade-up"
+              className="stat-card card-3d border-gradient-animated animate-fade-up"
               style={{ animationDelay: `${(idx + 1) * 100}ms` }}
             >
-              {/* Gradient icon with glow */}
-              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${c.gradient} flex items-center justify-center ${c.iconGlow} mb-4 transition-transform duration-300 group-hover:scale-110`}>
+              {/* Gradient icon with 3D glow */}
+              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${c.gradient} flex items-center justify-center ${c.iconGlow} mb-4 icon-3d`}>
                 <c.icon className="text-white text-xl" />
               </div>
 
@@ -300,26 +300,26 @@ export default function Dashboard() {
           <div className="card animate-fade-up" style={{ animationDelay: '400ms' }}>
             <h3 className="text-base font-semibold text-gray-900 mb-4">Quick Actions</h3>
             <div className="grid grid-cols-2 gap-2.5">
-              <Link to="/patients" className="quick-action-btn">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+              <Link to="/patients" className="quick-action-btn card-3d-left">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center icon-3d">
                   <FiUserPlus className="text-white text-sm" />
                 </div>
                 <span className="text-xs font-medium text-gray-600">Add Patient</span>
               </Link>
-              <Link to="/appointments" className="quick-action-btn">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
+              <Link to="/appointments" className="quick-action-btn card-3d-right">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center icon-3d">
                   <FiCalendar className="text-white text-sm" />
                 </div>
                 <span className="text-xs font-medium text-gray-600">Book Appt</span>
               </Link>
-              <Link to="/prescriptions" className="quick-action-btn">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
+              <Link to="/prescriptions" className="quick-action-btn card-3d-left">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center icon-3d">
                   <FiActivity className="text-white text-sm" />
                 </div>
                 <span className="text-xs font-medium text-gray-600">Prescribe</span>
               </Link>
-              <Link to="/billing" className="quick-action-btn">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
+              <Link to="/billing" className="quick-action-btn card-3d-right">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center icon-3d">
                   <FiDollarSign className="text-white text-sm" />
                 </div>
                 <span className="text-xs font-medium text-gray-600">Create Bill</span>
