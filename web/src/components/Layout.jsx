@@ -4,7 +4,11 @@ import {
   FiHome, FiUsers, FiCalendar, FiFileText, FiDollarSign,
   FiSettings, FiLogOut, FiMenu, FiX, FiSearch, FiUser,
   FiMoon, FiSun, FiPackage, FiActivity,
-  FiBarChart2, FiCreditCard, FiBell, FiGlobe
+  FiBarChart2, FiCreditCard, FiBell, FiGlobe,
+  FiHeart, FiUserPlus, FiClock, FiShield, FiMessageCircle,
+  FiCpu, FiMic, FiEdit3, FiAlertTriangle,
+  FiAward, FiGift, FiSend, FiStar,
+  FiMapPin, FiDatabase, FiTrendingUp
 } from 'react-icons/fi';
 import { clearSession, getUser } from '../utils/auth';
 import { useDarkMode } from '../hooks/useDarkMode';
@@ -28,6 +32,26 @@ const navGroups = [
     ]
   },
   {
+    label: 'Patient Features',
+    items: [
+      { path: '/health-records', icon: FiHeart, label: 'Health Records (PHR)' },
+      { path: '/family-accounts', icon: FiUserPlus, label: 'Family Accounts' },
+      { path: '/medicine-reminders', icon: FiClock, label: 'Medicine Reminders' },
+      { path: '/vaccinations', icon: FiShield, label: 'Vaccinations' },
+      { path: '/ai-assistant', icon: FiMessageCircle, label: 'AI Health Assistant' },
+      { path: '/ai-lab-analyzer', icon: FiSearch, label: 'AI Lab Analyzer' },
+    ]
+  },
+  {
+    label: 'AI Doctor Tools',
+    items: [
+      { path: '/voice-prescription', icon: FiMic, label: 'Voice Prescription' },
+      { path: '/clinical-support', icon: FiCpu, label: 'Clinical Decision AI' },
+      { path: '/emr-templates', icon: FiFileText, label: 'EMR Templates' },
+      { path: '/e-signature', icon: FiEdit3, label: 'E-Signature' },
+    ]
+  },
+  {
     label: 'Finance',
     items: [
       { path: '/billing', icon: FiDollarSign, label: 'Billing' },
@@ -36,10 +60,26 @@ const navGroups = [
     ]
   },
   {
+    label: 'Business Growth',
+    items: [
+      { path: '/memberships', icon: FiAward, label: 'Memberships' },
+      { path: '/health-packages', icon: FiPackage, label: 'Health Packages' },
+      { path: '/referrals', icon: FiGift, label: 'Referral Program' },
+      { path: '/campaigns', icon: FiSend, label: 'Campaigns & Reviews' },
+    ]
+  },
+  {
     label: 'Engage',
     items: [
       { path: '/follow-ups', icon: FiBell, label: 'Follow-ups' },
       { path: '/patient-portal', icon: FiGlobe, label: 'Patient Portal' },
+    ]
+  },
+  {
+    label: 'Enterprise',
+    items: [
+      { path: '/branches', icon: FiMapPin, label: 'Branches & Team' },
+      { path: '/audit-logs', icon: FiDatabase, label: 'Audit & Backup' },
     ]
   }
 ];
