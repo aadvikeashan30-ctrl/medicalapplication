@@ -17,6 +17,16 @@ const patientSchema = new mongoose.Schema(
     emergencyContact: { type: String },
     allergies: [{ type: String }],
     medicalHistory: [{ type: String }],
+    // Patient's preferred language for prescriptions/communication (ISO code).
+    preferredLanguage: { type: String, default: 'en' },
+    // ABDM / ABHA digital health identity. abhaNumber is stored encrypted.
+    abha: {
+      abhaNumber: { type: String }, // encrypted at rest via cryptoService
+      abhaAddress: { type: String },
+      linked: { type: Boolean, default: false },
+      linkedAt: { type: Date },
+      kycVerified: { type: Boolean, default: false }
+    },
     // Specialty-specific fields
     dentalChart: { type: Object },
     visionRecord: { type: Object },
