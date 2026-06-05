@@ -207,3 +207,51 @@ docker compose up -d --build
 ## License
 
 [MIT](./LICENSE)
+
+
+## All-in-One Platform Features (new)
+
+These extend the existing app and all work in **demo mode** (no database needed) so they are instantly demoable.
+
+### New API Endpoints
+
+| Area | Method | Endpoint | Description |
+|---|---|---|---|
+| Ambient AI Scribe | POST | `/api/scribe/generate` | Transcript → SOAP note + draft Rx (AI with rule-based fallback) |
+| | GET/PUT | `/api/scribe`, `/api/scribe/:id` | List / review / edit notes |
+| | POST | `/api/scribe/:id/approve` | Convert an approved note into a real prescription |
+| Multilingual | GET | `/api/i18n/languages` | List 8 supported languages |
+| | POST | `/api/i18n/localize` | Localize a prescription payload |
+| | GET | `/api/i18n/prescription/:id?lang=hi` | Fetch an existing Rx, localized |
+| 30-second Rx | GET | `/api/rx-tools?type=medicine\|protocol` | Favourites / quick protocols |
+| | GET | `/api/rx-tools/autocomplete?q=` | Usage-ranked autocomplete |
+| | POST | `/api/rx-tools/:id/apply` | Apply a protocol (bumps usage ranking) |
+| ABDM / ABHA | GET | `/api/abdm/status` | Gateway vs sandbox/demo mode |
+| | POST | `/api/abdm/abha/create` `/abha/verify` | Create / verify-link an ABHA |
+| | POST | `/api/abdm/link`, `/api/abdm/consent` | Link care-context, raise consent |
+| Pharmacy | GET | `/api/pharmacy`, `/api/pharmacy/alerts`, `/api/pharmacy/valuation` | Stock list, low-stock/expiry alerts, valuation |
+| | POST | `/api/pharmacy/:id/batches`, `/api/pharmacy/:id/dispense` | Stock-in, FEFO dispense |
+| Lab Orders | GET/POST | `/api/lab-orders` | Order workflow |
+| | POST | `/api/lab-orders/:id/result` | Attach results → pushed to HealthTimeline |
+| Self-service | GET | `/api/self-service/queue-position/:appointmentId` | Live token position |
+| | GET | `/api/self-service/queue-board/:doctorId` | Waiting-room board snapshot |
+
+### Waiting-room queue display
+
+Open `http://<host>/display/queue-display.html?doctorId=<id>` on a clinic screen. It uses Socket.IO for real-time token updates with a 10s polling fallback.
+
+### New environment variables (all optional — demo fallback when unset)
+
+| Var | Purpose |
+|---|---|
+| `PHI_ENCRYPTION_KEY` | 64 hex chars (32 bytes) for AES-256-GCM field-level PHI encryption (ABHA numbers etc.) |
+| `ABDM_CLIENT_ID` / `ABDM_CLIENT_SECRET` | ABDM gateway credentials; absent → sandbox/demo flow |
+| `ABDM_HFR_ID` / `ABDM_HIP_ID` | Health Facility Registry id / HIP id |
+| `PDF_FONT_PATH` | Path to a Unicode TTF (e.g. Noto Sans) for printing prescriptions in Indic scripts. Without it, localized PDFs fall back to English labels |
+
+### Tests
+
+```bash
+cd backend && npm test    # Node's built-in runner (node --test)
+```
+Covers the pure logic behind the new features: i18n, PHI crypto, inventory/FEFO, insurance-claim math, ABDM validation, and the scribe transcript parser.

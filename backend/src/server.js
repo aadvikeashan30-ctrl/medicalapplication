@@ -108,6 +108,10 @@ const uploadDir = path.join(__dirname, '..', 'uploads');
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 app.use('/uploads', express.static(uploadDir));
 
+// Static public assets (e.g. waiting-room queue display board at /display/queue-display.html)
+const publicDir = path.join(__dirname, '..', 'public');
+if (fs.existsSync(publicDir)) app.use('/display', express.static(publicDir));
+
 // MongoDB — default to demo mode until DB is confirmed connected
 app.locals.dbConnected = false;
 
@@ -142,6 +146,7 @@ mongoose.connection.on('error', (err) => {
 
 // Demo mode routes (MUST come BEFORE real routes so they intercept when DB is unavailable)
 app.use('/api', require('./routes/demo'));
+app.use('/api', require('./routes/demoExtra')); // demo handlers for the new all-in-one features
 
 // DB guard: if somehow a request reaches real routes but DB is actually down, return 503
 // This prevents 500 errors from Mongoose timeout/connection failures
@@ -189,6 +194,10 @@ app.use('/api/doctor', require('./routes/doctor'));
 app.use('/api/scribe', require('./routes/scribe'));        // Ambient AI Scribe
 app.use('/api/rx-tools', require('./routes/rxTools'));      // 30-second prescription tools
 app.use('/api/i18n', require('./routes/i18n'));             // Multilingual prescriptions
+app.use('/api/abdm', require('./routes/abdm'));             // ABDM / ABHA integration
+app.use('/api/pharmacy', require('./routes/pharmacy'));     // Pharmacy / inventory
+app.use('/api/lab-orders', require('./routes/labOrders'));  // Lab orders & results
+app.use('/api/self-service', require('./routes/selfService')); // Patient self-service + live queue
 
 // Business Features
 app.use('/api/membership', require('./routes/membership'));

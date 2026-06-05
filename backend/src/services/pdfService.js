@@ -2,7 +2,34 @@
  * PDF Generation Service — Creates prescription and invoice PDFs
  * Uses pdfkit (already in dependencies)
  */
+const fs = require('fs');
+const path = require('path');
 const PDFDocument = require('pdfkit');
+const i18n = require('./i18nService');
+
+/**
+ * Register a Unicode TTF font for Indic-script rendering, if one is available.
+ * Drop a font (e.g. NotoSans-Regular.ttf / Noto Sans Devanagari) at
+ * backend/assets/fonts/ or point PDF_FONT_PATH at it. Returns the registered
+ * font name, or null when none is found (callers then fall back to Helvetica
+ * with English labels so the PDF is always valid — never tofu/boxes).
+ */
+function registerUnicodeFont(doc) {
+  const candidates = [
+    process.env.PDF_FONT_PATH,
+    path.join(__dirname, '..', '..', 'assets', 'fonts', 'NotoSans-Regular.ttf'),
+    path.join(__dirname, '..', '..', 'assets', 'fonts', 'NotoSansDevanagari-Regular.ttf')
+  ].filter(Boolean);
+  for (const p of candidates) {
+    try {
+      if (fs.existsSync(p)) {
+        doc.registerFont('uni', p);
+        return 'uni';
+      }
+    } catch (e) { /* ignore and keep trying */ }
+  }
+  return null;
+}
 
 /**
  * Generate a prescription PDF
@@ -256,4 +283,92 @@ function generateInvoicePDF(invoice, doctor) {
   });
 }
 
-module.exports = { generatePrescriptionPDF, generateInvoicePDF };
+/**
+ * Generate a patient-facing prescription PDF localized to a target language.
+ *
+ * If a Unicode font is available (see registerUnicodeFont) the labels and
+ * dosing instructions are rendered in the patient's language (Hindi, Tamil,
+ * Telugu, Bengali, etc.). If not, it gracefully falls back to English labels
+ * so the output is always a valid, readable PDF. Drug names (usually Latin)
+ * are preserved as written either way.
+ *
+ * @param {Object} prescription - Populated prescription object
+ * @param {Object} doctor - Doctor/user object
+ * @param {string} lang - ISO language code (en, hi, ta, te, bn, mr, kn, gu)
+ * @returns {Promise<Buffer>} PDF buffer
+ */
+function generateLocalizedPrescriptionPDF(prescription, doctor, lang = 'en') {
+  return new Promise((resolve, reject) => {
+    const doc = new PDFDocument({ size: 'A4', margin: 50 });
+    const buffers = [];
+    doc.on('data', (chunk) => buffers.push(chunk));
+    doc.on('end', () => resolve(Buffer.concat(buffers)));
+    doc.on('error', reject);
+
+    const uniFont = registerUnicodeFont(doc);
+    const targetLang = i18n.normalizeLang(lang);
+    // Only render native script when we actually have a font that can draw it.
+    const renderLang = uniFont ? targetLang : 'en';
+    const localized = i18n.localizePrescription(
+      { diagnosis: prescription.diagnosis, advice: prescription.advice, medicines: prescription.medicines || [] },
+      renderLang
+    );
+    const L = localized.labels;
+    const body = uniFont || 'Helvetica';
+    const bodyBold = uniFont || 'Helvetica-Bold';
+    const pageWidth = doc.page.width - 100;
+    const patient = prescription.patientId || {};
+
+    // Header
+    doc.font('Helvetica-Bold').fontSize(18).fillColor('#1e40af').text(`Dr. ${doctor.name}`, 50, 50);
+    doc.font('Helvetica').fontSize(10).fillColor('#6b7280')
+      .text(`${(doctor.specialty || 'General Physician').toUpperCase()} | ${doctor.qualification || 'MBBS'}`, 50, 72)
+      .text(doctor.clinicName || '', 50, 86);
+    doc.moveTo(50, 108).lineTo(50 + pageWidth, 108).strokeColor('#e5e7eb').lineWidth(1).stroke();
+
+    // Title (localized) + language badge
+    doc.font(bodyBold).fontSize(14).fillColor('#1f2937').text(L.prescription, 50, 118);
+    doc.font('Helvetica').fontSize(9).fillColor('#9ca3af')
+      .text(`${prescription.prescriptionNo || ''}  •  ${new Date(prescription.createdAt || Date.now()).toLocaleDateString('en-IN')}  •  ${localized.languageName}`, 50, 138);
+    if (!uniFont && targetLang !== 'en') {
+      doc.fontSize(8).fillColor('#b45309')
+        .text('Note: install a Unicode font (PDF_FONT_PATH) to print in the selected language. Showing English.', 50, 152, { width: pageWidth });
+    }
+
+    let y = 172;
+    // Patient
+    doc.font(bodyBold).fontSize(11).fillColor('#111827').text(`${L.patient}: ${patient.name || ''}`, 50, y);
+    y += 22;
+
+    // Diagnosis
+    if (localized.diagnosis) {
+      doc.font(bodyBold).fontSize(10).fillColor('#1e40af').text(`${L.diagnosis}:`, 50, y); y += 15;
+      doc.font(body).fontSize(10).fillColor('#374151').text(localized.diagnosis, 50, y, { width: pageWidth }); y += 22;
+    }
+
+    // Medicines
+    doc.font('Helvetica-Bold').fontSize(16).fillColor('#1e40af').text('Rx', 50, y); y += 24;
+    (localized.medicines || []).forEach((m, idx) => {
+      if (y > 720) { doc.addPage(); y = 50; }
+      doc.font(bodyBold).fontSize(11).fillColor('#111827').text(`${idx + 1}. ${m.name || ''}  ${m.dosage || ''}`, 55, y);
+      y += 15;
+      const line = [m.frequencyText, m.timingText, m.durationText].filter(Boolean).join('  •  ');
+      doc.font(body).fontSize(9).fillColor('#6b7280').text(line, 70, y, { width: pageWidth - 20 });
+      y += 20;
+    });
+
+    // Advice
+    if (localized.advice) {
+      y += 6;
+      doc.font(bodyBold).fontSize(10).fillColor('#1e40af').text(`${L.advice}:`, 50, y); y += 15;
+      doc.font(body).fontSize(9).fillColor('#374151').text(localized.advice, 50, y, { width: pageWidth });
+    }
+
+    doc.font('Helvetica').fontSize(8).fillColor('#9ca3af')
+      .text('Generated by DocClinic Pro | Computer-generated prescription', 50, 780, { align: 'center', width: pageWidth });
+
+    doc.end();
+  });
+}
+
+module.exports = { generatePrescriptionPDF, generateInvoicePDF, generateLocalizedPrescriptionPDF };
