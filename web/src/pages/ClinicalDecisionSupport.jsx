@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FiBrain, FiAlertCircle, FiActivity, FiList, FiTrending } from 'react-icons/fi';
+import { FiCpu, FiAlertCircle, FiActivity, FiList, FiTrendingUp } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import api from '../utils/api';
 
@@ -79,17 +79,17 @@ export default function ClinicalDecisionSupport() {
   };
 
   const TABS = [
-    { id: 'clinical', label: 'Clinical Support', icon: <FiBrain /> },
+    { id: 'clinical', label: 'Clinical Support', icon: <FiCpu /> },
     { id: 'drugs', label: 'Drug Interactions', icon: <FiAlertCircle /> },
     { id: 'allergies', label: 'Allergy Alerts', icon: <FiActivity /> },
-    { id: 'followup', label: 'Follow-up', icon: <FiTrending /> }
+    { id: 'followup', label: 'Follow-up', icon: <FiTrendingUp /> }
   ];
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-          <FiBrain className="text-violet-600" /> Clinical Decision Support
+          <FiCpu className="text-violet-600" /> Clinical Decision Support
         </h1>
         <p className="text-gray-500 text-sm mt-1">AI-powered diagnosis, drug interactions, allergy alerts & follow-up suggestions</p>
       </div>
