@@ -24,6 +24,8 @@ jobs:
       - run: npm run lint
       - name: Syntax check entry point
         run: node --check src/server.js
+      - name: Unit tests
+        run: npm test
 
   web:
     name: Web build
