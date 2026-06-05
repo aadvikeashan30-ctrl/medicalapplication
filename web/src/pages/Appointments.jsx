@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { FiPlus, FiClock, FiCheck, FiX, FiPlay, FiCalendar } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import api from '../utils/api';
@@ -51,6 +52,19 @@ export default function Appointments() {
   useEffect(() => {
     setForm((f) => ({ ...f, date: selectedDate }));
   }, [selectedDate]);
+
+  // Smart prefill: opening from a patient dashboard (?patientId=) preselects the patient.
+  const [searchParams, setSearchParams] = useSearchParams();
+  useEffect(() => {
+    const pid = searchParams.get('patientId');
+    if (pid) {
+      setForm((f) => ({ ...f, patientId: pid }));
+      setShowAddModal(true);
+      searchParams.delete('patientId');
+      setSearchParams(searchParams, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const submit = async (e) => {
     e.preventDefault();

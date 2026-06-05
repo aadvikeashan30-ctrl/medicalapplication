@@ -94,6 +94,45 @@ const DEMO_BILLS = [
   { _id: 'bill-4', invoiceNo: 'INV-00004', patientId: DEMO_PATIENTS[3], items: [{ description: 'Follow-up', amount: 300, quantity: 1 }, { description: 'HbA1c Test', amount: 600, quantity: 1 }], subtotal: 900, totalAmount: 900, paidAmount: 500, paymentMethod: 'card', paymentStatus: 'partial', createdAt: new Date('2025-05-28') }
 ];
 
+// ==================== VITALS / PROBLEMS / DOCUMENTS (demo seed) ====================
+const daysAgo = (n) => new Date(Date.now() - n * 24 * 60 * 60 * 1000);
+
+// Time-series vitals keyed by patient _id (oldest -> newest for charting).
+const DEMO_VITALS = {
+  'pat-1': [
+    { _id: 'vit-1a', patientId: 'pat-1', recordedAt: daysAgo(120), systolic: 148, diastolic: 96, pulse: 82, weight: 82, height: 172, bmi: 27.7, bloodSugar: 110, spo2: 97 },
+    { _id: 'vit-1b', patientId: 'pat-1', recordedAt: daysAgo(90), systolic: 144, diastolic: 92, pulse: 80, weight: 81, height: 172, bmi: 27.4, bloodSugar: 106, spo2: 98 },
+    { _id: 'vit-1c', patientId: 'pat-1', recordedAt: daysAgo(60), systolic: 138, diastolic: 88, pulse: 78, weight: 80, height: 172, bmi: 27.0, bloodSugar: 102, spo2: 98 },
+    { _id: 'vit-1d', patientId: 'pat-1', recordedAt: daysAgo(30), systolic: 134, diastolic: 86, pulse: 76, weight: 79, height: 172, bmi: 26.7, bloodSugar: 98, spo2: 99 },
+    { _id: 'vit-1e', patientId: 'pat-1', recordedAt: daysAgo(5), systolic: 130, diastolic: 84, pulse: 74, weight: 78, height: 172, bmi: 26.4, bloodSugar: 95, spo2: 99 }
+  ],
+  'pat-4': [
+    { _id: 'vit-4a', patientId: 'pat-4', recordedAt: daysAgo(100), systolic: 136, diastolic: 88, pulse: 84, weight: 74, height: 158, bmi: 29.6, bloodSugar: 168, bloodSugarType: 'fasting', spo2: 97 },
+    { _id: 'vit-4b', patientId: 'pat-4', recordedAt: daysAgo(70), systolic: 134, diastolic: 86, pulse: 82, weight: 73, height: 158, bmi: 29.2, bloodSugar: 152, bloodSugarType: 'fasting', spo2: 97 },
+    { _id: 'vit-4c', patientId: 'pat-4', recordedAt: daysAgo(40), systolic: 132, diastolic: 84, pulse: 80, weight: 72, height: 158, bmi: 28.8, bloodSugar: 141, bloodSugarType: 'fasting', spo2: 98 },
+    { _id: 'vit-4d', patientId: 'pat-4', recordedAt: daysAgo(10), systolic: 130, diastolic: 82, pulse: 78, weight: 71, height: 158, bmi: 28.4, bloodSugar: 128, bloodSugarType: 'fasting', spo2: 98 }
+  ]
+};
+
+// Seed problem lists + documents on the demo patients.
+DEMO_PATIENTS[0].problems = [
+  { _id: 'prb-1', name: 'Essential Hypertension', icd10: 'I10', status: 'controlled', onsetDate: new Date('2021-03-12'), notes: 'On Amlodipine 5mg' },
+  { _id: 'prb-2', name: 'Hyperlipidemia', icd10: 'E78.5', status: 'active', onsetDate: new Date('2022-08-01'), notes: 'Statin started' }
+];
+DEMO_PATIENTS[0].documents = [
+  { _id: 'doc-1', name: 'Lipid Profile - May 2025', url: '/uploads/demo-file.pdf', fileType: 'application/pdf', category: 'lab-report', uploadedAt: new Date('2025-05-20') }
+];
+DEMO_PATIENTS[3].problems = [
+  { _id: 'prb-3', name: 'Type 2 Diabetes Mellitus', icd10: 'E11.9', status: 'active', onsetDate: new Date('2020-01-15'), notes: 'On Metformin 500mg BD' }
+];
+DEMO_PATIENTS[3].documents = [
+  { _id: 'doc-2', name: 'HbA1c Report', url: '/uploads/demo-file.pdf', fileType: 'application/pdf', category: 'lab-report', uploadedAt: new Date('2025-05-28') }
+];
+DEMO_PATIENTS.forEach((p) => {
+  if (!p.problems) p.problems = [];
+  if (!p.documents) p.documents = [];
+});
+
 // Middleware: only respond if DB is not connected (demo mode)
 // Also checks actual mongoose connection state to handle race conditions
 function demoOnly(req, res, next) {
@@ -625,6 +664,90 @@ router.get('/portal/track/:id', demoOnly, (req, res) => {
     patient: { name: apt.patientId?.name || 'Patient', phone: '9876543213' },
     queue: { totalToday: 5, completed: 2, currentToken: 3, myToken: apt.tokenNumber, myPosition: 4, patientsAhead: 1, estimatedWaitMinutes: 15 }
   });
+});
+
+// ==================== VITALS (demo) ====================
+router.get('/vitals', demoOnly, (req, res) => {
+  const list = DEMO_VITALS[req.query.patientId] || [];
+  res.json({ vitals: list, latest: list.length ? list[list.length - 1] : null });
+});
+
+router.post('/vitals', demoOnly, (req, res) => {
+  const { patientId } = req.body;
+  if (!patientId) return res.status(400).json({ message: 'patientId is required' });
+  const entry = {
+    _id: `vit-${Date.now()}`,
+    patientId,
+    recordedAt: req.body.recordedAt || new Date(),
+    ...req.body
+  };
+  if (entry.weight && entry.height) {
+    const h = entry.height / 100;
+    if (h > 0) entry.bmi = Math.round((entry.weight / (h * h)) * 10) / 10;
+  }
+  if (!DEMO_VITALS[patientId]) DEMO_VITALS[patientId] = [];
+  DEMO_VITALS[patientId].push(entry);
+  res.status(201).json(entry);
+});
+
+router.delete('/vitals/:id', demoOnly, (req, res) => {
+  Object.keys(DEMO_VITALS).forEach((pid) => {
+    DEMO_VITALS[pid] = DEMO_VITALS[pid].filter((v) => v._id !== req.params.id);
+  });
+  res.json({ message: 'Vitals entry deleted' });
+});
+
+// ==================== PROBLEM LIST (demo) ====================
+router.get('/patients/:id/problems', demoOnly, (req, res) => {
+  const p = DEMO_PATIENTS.find((x) => x._id === req.params.id);
+  if (!p) return res.status(404).json({ message: 'Patient not found' });
+  res.json(p.problems || []);
+});
+
+router.post('/patients/:id/problems', demoOnly, (req, res) => {
+  const p = DEMO_PATIENTS.find((x) => x._id === req.params.id);
+  if (!p) return res.status(404).json({ message: 'Patient not found' });
+  if (!p.problems) p.problems = [];
+  p.problems.push({ _id: `prb-${Date.now()}`, status: 'active', ...req.body });
+  res.status(201).json(p.problems);
+});
+
+router.put('/patients/:id/problems/:problemId', demoOnly, (req, res) => {
+  const p = DEMO_PATIENTS.find((x) => x._id === req.params.id);
+  if (!p) return res.status(404).json({ message: 'Patient not found' });
+  const prob = (p.problems || []).find((x) => x._id === req.params.problemId);
+  if (!prob) return res.status(404).json({ message: 'Problem not found' });
+  Object.assign(prob, req.body);
+  res.json(p.problems);
+});
+
+router.delete('/patients/:id/problems/:problemId', demoOnly, (req, res) => {
+  const p = DEMO_PATIENTS.find((x) => x._id === req.params.id);
+  if (!p) return res.status(404).json({ message: 'Patient not found' });
+  p.problems = (p.problems || []).filter((x) => x._id !== req.params.problemId);
+  res.json(p.problems);
+});
+
+// ==================== DOCUMENTS (demo) ====================
+router.get('/patients/:id/documents', demoOnly, (req, res) => {
+  const p = DEMO_PATIENTS.find((x) => x._id === req.params.id);
+  if (!p) return res.status(404).json({ message: 'Patient not found' });
+  res.json(p.documents || []);
+});
+
+router.post('/patients/:id/documents', demoOnly, (req, res) => {
+  const p = DEMO_PATIENTS.find((x) => x._id === req.params.id);
+  if (!p) return res.status(404).json({ message: 'Patient not found' });
+  if (!p.documents) p.documents = [];
+  p.documents.push({ _id: `doc-${Date.now()}`, uploadedAt: new Date(), category: 'other', ...req.body });
+  res.status(201).json(p.documents);
+});
+
+router.delete('/patients/:id/documents/:docId', demoOnly, (req, res) => {
+  const p = DEMO_PATIENTS.find((x) => x._id === req.params.id);
+  if (!p) return res.status(404).json({ message: 'Patient not found' });
+  p.documents = (p.documents || []).filter((x) => x._id !== req.params.docId);
+  res.json(p.documents);
 });
 
 module.exports = router;
