@@ -157,6 +157,7 @@ app.use('/api', (req, res, next) => {
 // Real routes (used when MongoDB IS connected)
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/patients', require('./routes/patients'));
+app.use('/api/vitals', require('./routes/vitals'));
 app.use('/api/appointments', require('./routes/appointments'));
 app.use('/api/prescriptions', require('./routes/prescriptions'));
 app.use('/api/billing', require('./routes/billing'));

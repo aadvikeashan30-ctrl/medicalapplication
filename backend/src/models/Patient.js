@@ -1,6 +1,34 @@
 const mongoose = require('mongoose');
 const { nextSeq } = require('./Counter');
 
+// Chronic / ongoing conditions shown as a "problem list" on the patient dashboard.
+const problemSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true, trim: true },
+    icd10: { type: String, trim: true },
+    status: { type: String, enum: ['active', 'controlled', 'resolved'], default: 'active' },
+    onsetDate: { type: Date },
+    notes: { type: String, trim: true }
+  },
+  { timestamps: true }
+);
+
+// Documents/reports attached to a patient (file uploaded separately via /api/uploads).
+const documentSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true, trim: true },
+    url: { type: String, required: true },
+    fileType: { type: String },
+    category: {
+      type: String,
+      enum: ['lab-report', 'imaging', 'prescription', 'discharge-summary', 'insurance', 'other'],
+      default: 'other'
+    },
+    uploadedAt: { type: Date, default: Date.now }
+  },
+  { timestamps: true }
+);
+
 const patientSchema = new mongoose.Schema(
   {
     doctorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
@@ -17,6 +45,10 @@ const patientSchema = new mongoose.Schema(
     emergencyContact: { type: String },
     allergies: [{ type: String }],
     medicalHistory: [{ type: String }],
+    // Chronic problem list (ongoing conditions) shown on the patient dashboard.
+    problems: [problemSchema],
+    // Patient documents / uploaded reports.
+    documents: [documentSchema],
     // Patient's preferred language for prescriptions/communication (ISO code).
     preferredLanguage: { type: String, default: 'en' },
     // ABDM / ABHA digital health identity. abhaNumber is stored encrypted.

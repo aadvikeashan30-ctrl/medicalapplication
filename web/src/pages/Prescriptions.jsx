@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { FiPlus, FiFileText, FiPrinter, FiX, FiTrash2, FiDownload, FiSave, FiBookOpen } from 'react-icons/fi';
 import { FaWhatsapp } from 'react-icons/fa';
 import toast from 'react-hot-toast';
@@ -27,6 +28,20 @@ export default function Prescriptions() {
     vitals: { bp: '', weight: '', temperature: '' },
     medicines: [{ ...emptyMed }]
   });
+
+  // Smart prefill: opening from a patient dashboard (?patientId=) preselects the patient.
+  const [searchParams, setSearchParams] = useSearchParams();
+  useEffect(() => {
+    const pid = searchParams.get('patientId');
+    if (pid) {
+      setForm((f) => ({ ...f, patientId: pid }));
+      setShowAddModal(true);
+      // Clear the param so refreshes/closes don't keep reopening the modal.
+      searchParams.delete('patientId');
+      setSearchParams(searchParams, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const addMedicine = () =>
     setForm((f) => ({ ...f, medicines: [...f.medicines, { ...emptyMed }] }));

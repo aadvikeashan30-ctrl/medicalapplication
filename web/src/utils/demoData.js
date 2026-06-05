@@ -118,6 +118,15 @@ export const DEMO_RESPONSES = {
     { _id: 'med-3', name: 'Metformin', strength: '500mg', form: 'tablet', defaultFrequency: '1-0-1' }
   ],
   '/labtests': { tests: [], total: 0 },
+  '/vitals': {
+    vitals: [
+      { _id: 'vit-d1', recordedAt: new Date(Date.now() - 90 * 864e5).toISOString(), systolic: 144, diastolic: 92, pulse: 80, weight: 81, height: 172, bmi: 27.4, bloodSugar: 106, spo2: 98 },
+      { _id: 'vit-d2', recordedAt: new Date(Date.now() - 60 * 864e5).toISOString(), systolic: 138, diastolic: 88, pulse: 78, weight: 80, height: 172, bmi: 27.0, bloodSugar: 102, spo2: 98 },
+      { _id: 'vit-d3', recordedAt: new Date(Date.now() - 30 * 864e5).toISOString(), systolic: 134, diastolic: 86, pulse: 76, weight: 79, height: 172, bmi: 26.7, bloodSugar: 98, spo2: 99 },
+      { _id: 'vit-d4', recordedAt: new Date(Date.now() - 5 * 864e5).toISOString(), systolic: 130, diastolic: 84, pulse: 74, weight: 78, height: 172, bmi: 26.4, bloodSugar: 95, spo2: 99 }
+    ],
+    latest: { _id: 'vit-d4', systolic: 130, diastolic: 84, pulse: 74, weight: 78, height: 172, bmi: 26.4, bloodSugar: 95, spo2: 99 }
+  },
   '/whatsapp/run-reminders': { processed: 5, sent: 3, failed: 0 },
   '/whatsapp/send': { message: 'Message sent (demo mode)', sent: true },
   '/whatsapp/prescription': { message: 'Prescription shared (demo mode)', sent: true },
@@ -167,7 +176,13 @@ export function getDemoResponse(url) {
   
   // Try exact match first
   if (DEMO_RESPONSES[cleanPath]) return DEMO_RESPONSES[cleanPath];
-  
+
+  // Patient sub-resources — must be checked BEFORE the generic startsWith loop below,
+  // otherwise "/patients/:id/problems" would wrongly match the "/patients" list.
+  if (cleanPath.includes('/problems')) return [];
+  if (cleanPath.includes('/documents')) return [];
+  if (cleanPath.includes('/vitals') || cleanPath.endsWith('vitals')) return DEMO_RESPONSES['/vitals'];
+
   // Try without leading slash
   const noSlash = cleanPath.replace(/^\//, '');
   for (const [key, value] of Object.entries(DEMO_RESPONSES)) {
