@@ -188,6 +188,7 @@ app.use('/api/chatbot', require('./routes/chatbot'));
 // Doctor Features (AI-powered)
 app.use('/api/doctor', require('./routes/doctor'));
 app.use('/api/scribe', require('./routes/scribe'));        // Ambient AI Scribe
+app.use('/api/no-show', require('./routes/noShow'));        // Predictive no-show detection & smart scheduling
 app.use('/api/rx-tools', require('./routes/rxTools'));      // 30-second prescription tools
 app.use('/api/i18n', require('./routes/i18n'));             // Multilingual prescriptions
 
